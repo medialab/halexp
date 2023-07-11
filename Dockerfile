@@ -9,15 +9,9 @@ RUN apt-get update && \
     apt-get install git -y
 
 RUN python -m pip install --upgrade pip
-# RUN pip install ipython
-# RUN pip install -U sentence-transformers
-
-RUN ls
 
 # clone project repo and install dependencies
-ARG token
-ENV env_token $token
-RUN git clone https://${env_token}@github.com/jimenaRL/halexp.git
+RUN git clone https://github.com/medialab/halexp.git
 WORKDIR /halexp
 RUN pip install -r requirements.txt
 
@@ -26,4 +20,3 @@ RUN python -c "from sentence_transformers import SentenceTransformer; sBert = Se
 RUN python -c "from sentence_transformers import SentenceTransformer; sBert = SentenceTransformer('distiluse-base-multilingual-cased-v1')"
 
 COPY hal-productions.json hal-productions.json
-
