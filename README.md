@@ -9,4 +9,4 @@ Inspired by https://recherche.pantheonsorbonne.fr/structures-recherche/recherche
 docker build -t halexp  -f Dockerfile . 
 
 ## run docker image
-docker run -ti  --name=halexpinstance halex
+docker run -ti  --name=halexpinstance halexp
