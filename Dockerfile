@@ -20,3 +20,6 @@ RUN python -c "from sentence_transformers import SentenceTransformer; sBert = Se
 RUN python -c "from sentence_transformers import SentenceTransformer; sBert = SentenceTransformer('distiluse-base-multilingual-cased-v1')"
 
 COPY hal-productions.json hal-productions.json
+
+CMD ["/halexp/script.py"]
+ENTRYPOINT ["python"]
