@@ -26,7 +26,7 @@ def formatHtml(query, authors):
 @app.route('/query')
 def query():
     """
-    10.19.0.13:5000/query?query=Moralisme%20progressiste%20et%20pratiques%20punitives%20dans%20la%20lutte%20contre%20les%20violences%20sexistes
+    ip:5000/query?query=Moralisme%20progressiste%20et%20pratiques%20punitives%20dans%20la%20lutte%20contre%20les%20violences%20sexistes
     """
     # if key doesn't exist, returns None
     query = request.args.get('query')
@@ -42,7 +42,7 @@ def query():
 @app.route('/form', methods=['GET', 'POST'])
 def form():
     """
-    10.19.0.13:5000/form
+    ip:5000/form
     """
     if request.method == 'POST':
         query = request.form.get('query')
@@ -68,7 +68,7 @@ def form():
 @app.route('/json', methods=['POST'])
 def json():
     """
-    python -c 'import requests; print(requests.post(url="http://10.19.0.13:5000/json", json={"query": "Moralisme progressiste et pratiques punitives dans la lutte contre les violences sexistes"}).text)'
+    python -c 'import requests; print(requests.post(url="http://ip:5000/json", json={"query": "Moralisme progressiste et pratiques punitives dans la lutte contre les violences sexistes"}).text)'
 
     """
     request_data = request.get_json()
