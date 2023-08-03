@@ -1,0 +1,4 @@
+hnswlib==0.7.0
+sentence-transformers
+flask
+pytest
