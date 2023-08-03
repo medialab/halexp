@@ -16,7 +16,7 @@ def remove_html_tags(text):
 
 class Retriever:
     """
-    Class for retreiving ...
+    Class for retreiving things :)
     """
 
     corpus = []
@@ -25,22 +25,25 @@ class Retriever:
 
     embeddings = []
     embedding_size = -1
+    model_name = 'distiluse-base-multilingual-cased-v1'
 
     index_path = "./hnswlib.index"
     space = 'cosine'
     index = None
-    top_k_hits = -1
+    top_k = -1
 
-    def __init__(self, data_path='hal-productions.json', rebuild=False):
+    def __init__(self, data_path, top_k=3):
 
+        self.top_k = top_k
         self.data_path = data_path
         self.parseData()
-        self.loadSbertModel()
+        self.loadModel()
         self.encodeData()
         self.createIndex()
 
     def parseData(self):
         """
+        Parse data :)
         """
 
         print(f"Loading and parsing medialab HAL json dump...")
@@ -65,16 +68,16 @@ class Retriever:
         self.citations = [remove_html_tags(c) for c in self.citations]
         self.abstracts = [doc[1][0] for doc in self.corpus]
 
-    def loadSbertModel(self):
+    def loadModel(self):
         """
         """
-        self.model = SentenceTransformer('distiluse-base-multilingual-cased-v1')
+        self.model = SentenceTransformer(self.model_name)
 
     def encodeData(self):
         """
         """
-        self.embeddings = self.model.encode(abstracts)
-        self.embedding_size = embeddings[0].shape[0]
+        self.embeddings = self.model.encode(self.abstracts)
+        self.embedding_size = self.embeddings[0].shape[0]
 
     def createIndex(self):
         """
@@ -110,9 +113,9 @@ class Retriever:
 
         start_time = time.time()
 
-        # We use hnswlib knn_query method to find the top_k_hits
+        # We use hnswlib knn_query method to find the top_k
         corpus_ids, distances = self.index.knn_query(
-            question_embedding, k=top_k_hits)
+            question_embedding, k=self.top_k)
 
         # We extract corpus ids and scores for the first query
         hits = [
@@ -124,14 +127,19 @@ class Retriever:
         print("Input question:", inp_question)
         print("Results (after {:.3f} seconds):".format(end_time-start_time))
 
-        for hit in hits[0:top_k_hits]:
-            print(f"\t{hit['score']:.3f}\t{citations[hit['corpus_id']]}")
+        for hit in hits[0:self.top_k]:
+            print(f"\t{hit['score']:.3f}\t{self.citations[hit['corpus_id']]}")
 
-        return {
+        dict_ = {
             n: {
                 'score': hits[n]['score'],
-                'text': citations[hits[n]['corpus_id']]
+                'text': self.citations[hits[n]['corpus_id']]
             }
-            for n in range(top_k_hits)
+            for n in range(self.top_k)
         }
+
+        authors = [
+            self.citations[hits[n]['corpus_id']] for n in range(self.top_k)]
+
+        return dict_, authors
 

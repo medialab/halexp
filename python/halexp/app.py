@@ -1,70 +1,88 @@
+"""
+https://www.digitalocean.com/community/tutorials/processing-incoming-request-data-in-flask
+"""
+
 from flask import Flask, request, jsonify
 from .retriever import Retriever
 
 # create the Flask app
 app = Flask(__name__)
 
-
 retriever = Retriever(
-    data_path='/home/jimena/work/dev/halexp/hal-productions.json')
+    data_path='/home/jimena/work/dev/halexp/hal-productions.json',
+    top_k=3
+)
 
 
-# @app.route('/query-example')
-# def query_example():
-#     # if key doesn't exist, returns None
-#     language = request.args.get('language')
+def formatHtml(query, authors):
+    html = f"<h1>Votre requête :</h1>"
+    html += f"<p>{query}</p>"
+    html += "\n<h1>Resultats obtenus :</h1>"
+    for author in authors:
+        html += f"\n<p>{author}<p>"
+    return html
 
-#     # if key doesn't exist, returns a 400, bad request error
-#     framework = request.args['framework']
 
-#     # if key doesn't exist, returns None
-#     website = request.args.get('website')
-
-#     return '''
-#               <h1>The language value is: {}</h1>
-#               <h1>The framework value is: {}</h1>
-#               <h1>The website value is: {}'''.format(language, framework, website)
+@app.route('/query')
+def query():
+    """
+    10.19.0.13:5000/query?query=Moralisme%20progressiste%20et%20pratiques%20punitives%20dans%20la%20lutte%20contre%20les%20violences%20sexistes
+    """
+    # if key doesn't exist, returns None
+    query = request.args.get('query')
+    if query is not None:
+        print(query)
+        dict_, authors = retriever.retrieve(inp_question=query)
+        print(authors)
+        return formatHtml(query, authors)
+    return "<p>Missing `query` argument in query string.<p>"
 
 
 # allow both GET and POST requests
-@app.route('/form-example', methods=['GET', 'POST'])
-def form_example():
-
-    print(retriever)
-
-    # handle the POST request
+@app.route('/form', methods=['GET', 'POST'])
+def form():
+    """
+    10.19.0.13:5000/form
+    """
     if request.method == 'POST':
-        language = request.form.get('language')
-        framework = request.form.get('framework')
-        return '''
-                  <h1>The language value is: {}</h1>
-                  <h1>The framework value is: {}</h1>'''.format(language, framework)
+        query = request.form.get('query')
+        print(query)
+        dict_, authors = retriever.retrieve(inp_question=query)
+        print(authors)
+        return formatHtml(query, authors)
 
-    return '''
-              <form method="POST">
-                  <div><label>Language: <input type="text" name="language"></label></div>
-                  <div><label>Framework: <input type="text" name="framework"></label></div>
-                  <input type="submit" value="Submit">
-              </form>'''
+    t = "Veuillez saisir une phrase "
+    t += "(sujet, projet de recherche ou d'article...) "
+    t += "dans la langue de votre choix:"
+    html = f'''
+          <form method="POST">
+              <div><label>{t}<input type="text" name="query"></label></div>
+              </br>
+              <input type="submit" value="RECHERCHER">
+          </form>'''
+
+    return html
 
 
-# # GET requests will be blocked
-# @app.route('/json-example', methods=['POST'])
-# def json_example():
-#     request_data = request.get_json()
+# GET requests will be blocked
+@app.route('/json', methods=['POST'])
+def json():
+    """
+    python -c 'import requests; print(requests.post(url="http://10.19.0.13:5000/json", json={"query": "Moralisme progressiste et pratiques punitives dans la lutte contre les violences sexistes"}).text)'
 
-#     language = request_data['language']
-#     framework = request_data['framework']
+    """
+    request_data = request.get_json()
 
-#     # two keys are needed because of the nested object
-#     python_version = request_data['version_info']['python']
+    if request_data:
+        if 'query' in request_data:
+            query = request_data['query']
+            if query:
+                print(query)
+                dict_, authors = retriever.retrieve(inp_question=query)
+                print(dict_)
+                return dict_
 
-#     # an index is needed because of the array
-#     example = request_data['examples'][0]
-
-#     boolean_test = request_data['boolean_test']
-
-#     return jsonify({"a": 1, "b": 2, "c": 3})
+    return {}
 
 
 # if __name__ == '__main__':
