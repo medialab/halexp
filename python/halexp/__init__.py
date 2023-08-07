@@ -1,3 +1,4 @@
+from .corpus import Corpus
 from .retriever import Retriever
 from .__version__ import __version__
 
