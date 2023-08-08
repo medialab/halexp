@@ -1,9 +1,4 @@
 import re
-import os
-import json
-import time
-import hnswlib
-from sentence_transformers import SentenceTransformer
 import json
 
 
@@ -22,9 +17,9 @@ class Corpus:
 
     embeddingData = []
 
-    def __init__(self, data_path):
+    def __init__(self, dump_path):
 
-        self.parseDump(data_path)
+        self.parseDump(dump_path)
         self.extractInputData()
 
     def parseDump(self, data_path):

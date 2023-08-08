@@ -1,14 +1,11 @@
-import re
 import os
 import time
 import hnswlib
 
-from .corpus import Corpus
-
 from sentence_transformers import SentenceTransformer
 
 
-class Retriever:
+class Index:
     """
     Class for retreiving things :)
     """
@@ -23,9 +20,12 @@ class Retriever:
     space = 'cosine'
     index = None
 
-    def __init__(self, data_path):
+    def __init__(self, corpus, sentence_transformer_model, hnswlib_space):
 
-        self.halCorpus = Corpus(data_path)
+        self.model_name = sentence_transformer_model
+        self.space = hnswlib_space
+
+        self.halCorpus = corpus
         self.loadModel()
         self.encodeData()
         self.createIndex()
@@ -33,9 +33,7 @@ class Retriever:
     def loadModel(self):
         """
         """
-        print(f"Loading embedding model...")
         self.model = SentenceTransformer(self.model_name)
-        print(f"done.")
 
     def encodeData(self):
         """
@@ -48,21 +46,23 @@ class Retriever:
 
     def createIndex(self):
         """
-        """
-        # Defining hnswlib index using dot-product as Index and normalize
+        Creates a Hierarchical Navigable Small World graphs (HNSW) index
+        containing the sentences embeddings.
+        The HNSWLIB index uses dot-product as Index and normalize
         # vectors to unit length.
+
+        """
         self.index = hnswlib.Index(space=self.space, dim=self.embedding_size)
 
         if os.path.exists(self.index_path):
             print("Loading index...")
             self.index.load_index(self.index_path)
         else:
-            # Create the HNSWLIB index
             print("Start creating HNSWLIB index")
             self.index.init_index(
                 max_elements=len(self.embeddings), ef_construction=400, M=64)
 
-            # Train the index to find a suitable clustering
+            # Populate index with embeddings
             self.index.add_items(
                 self.embeddings, list(range(len(self.embeddings))))
 
