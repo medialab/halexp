@@ -1,0 +1,6 @@
+app:
+corpus:
+  dump_path: /home/jimena/work/dev/halexp/hal-productions.json
+index:
+    hnswlib_space: cosine
+    sentence_transformer_model: distiluse-base-multilingual-cased-v1

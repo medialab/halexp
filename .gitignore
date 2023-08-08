@@ -1,6 +1,9 @@
+*hnswlib.index
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+.python-version
 *$py.class
 
 # C extensions
