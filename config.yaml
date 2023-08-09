@@ -4,3 +4,4 @@ corpus:
 index:
     hnswlib_space: cosine
     sentence_transformer_model: distiluse-base-multilingual-cased-v1
+logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png

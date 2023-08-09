@@ -9,7 +9,7 @@ import yaml
 from .index import Index
 from .corpus import Corpus
 
-from flask import Flask, abort, request, jsonify
+from flask import Flask, abort, request, jsonify, redirect
 
 
 config = os.path.abspath("../../config.yaml")
@@ -29,14 +29,21 @@ def castInt(k):
         abort(400)
 
 def formatReponseHtml(query, res):
-    html = f"<h3>Votre requête :</h3>"
-    html += f"<p>{query}</p>"
-    html += "\n<h3>Resultats obtenus :</h3>"
+    html = f'''
+        <img src={params['logoUrl']} alt="" style="width:450px;">
+        <h2>Experts search engine</h2>
+        </br>
+        <h3>Votre requête :</h3>
+        <p>{query}</p>
+        <h3>Resultats obtenus :</h3>
+    '''
     for r in res:
         score = f"{r['score']:.3f}"
         citation = str(r['citation'])
         p = score+'   '+citation
-        html += f"\n<p>{p}<p>"
+        html += f'''
+            <p>{p}<p>
+        '''
     return html
 
 def getFormHtml():
@@ -46,11 +53,20 @@ def getFormHtml():
     n = "Nombre de réponses souhaitées : "
     return f'''
           <form method="POST">
+              <img src={params['logoUrl']} alt="" style="width:450px;">
+              <h2>Experts search engine</h2>
+              </br>
               <div><label>{t}<input type="text" name="query"></label></div>
+              </br>
               <div><label>{n}<input type="text" name="hits"></label></div>
               </br>
               <input type="submit" value="RECHERCHER">
           </form>'''
+
+@app.route('/')
+def landing():
+    return redirect("form")
+
 
 @app.route('/query')
 def query():
