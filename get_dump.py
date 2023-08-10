@@ -2,8 +2,14 @@ import os
 import yaml
 import json
 import requests
+from argparse import ArgumentParser
 
-config = os.path.abspath("config.yaml")
+
+ap = ArgumentParser()
+ap.add_argument('--config', type=str)
+args = ap.parse_args()
+config = args.config
+
 with open(config, "r") as fh:
     params = yaml.load(fh, Loader=yaml.SafeLoader)
 
