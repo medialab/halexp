@@ -22,12 +22,11 @@ RUN git pull
 RUN pip install -r /halexp/python/requirements.txt
 
 # download HAL dump
-RUN ls
-COPY get_dump.py get_dump.py
-COPY config.yaml config.yaml
-RUN python get_dump.py
-
+RUN pwd
 RUN git pull
+COPY get_dump.py get_dump.py
+RUN python get_dump.py --config=config.yaml
+
 
 WORKDIR /halexp/python/halexp
 CMD ["flask", "run", "--host=0.0.0.0", "--debugger"]
