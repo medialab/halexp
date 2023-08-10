@@ -15,7 +15,7 @@ with open(config, "r") as fh:
 
 params = params['corpus']
 
-dump_path = os.path.abspath(params['dump_path'])
+dump_file = os.path.abspath(params['dump_file'])
 
 BASE_URL = params['baseUrl']
 labStructId_i = params['labStructId_i']
@@ -34,8 +34,8 @@ x = requests.get(url)
 
 if x.ok:
     docs = json.loads(x.text)['response']['docs']
-    with open(dump_path, 'w') as fp:
+    with open(dump_file, 'w') as fp:
         json.dump(docs, fp)
-    print(f"got {len(docs)} entries, saved at {dump_path}.")
+    print(f"got {len(docs)} entries, saved at {dump_file}.")
 else:
     print(x)
