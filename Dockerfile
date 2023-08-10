@@ -18,15 +18,11 @@ RUN python -c "from sentence_transformers import SentenceTransformer; sBert = Se
 # clone project repo and install dependencies
 RUN git clone https://github.com/medialab/halexp.git
 WORKDIR /halexp
-RUN git pull
 RUN pip install -r /halexp/python/requirements.txt
 
 # download HAL dump
-RUN pwd
-RUN git pull
-COPY get_dump.py get_dump.py
 RUN python get_dump.py --config=config.yaml
 
-
-WORKDIR /halexp/python/halexp
+ENV APPCONFIG=/halexp/config.yaml
+ENV FLASK_APP=/halexp/python/halexp/app.py
 CMD ["flask", "run", "--host=0.0.0.0", "--debugger"]

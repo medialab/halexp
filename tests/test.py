@@ -1,18 +1,7 @@
-import requests
 
-url = 'http://10.17.0.14:5000/json-example'
-myobj = {
-    "language" : "Python",
-    "framework" : "Flask",
-    "website" : "Scotch",
-    "version_info" : {
-        "python" : "3.9.0",
-        "flask" : "1.1.2"
-    },
-    "examples" : ["query", "form", "json"],
-    "boolean_test" : True
-}
 
-x = requests.post(url, json = myobj)
+# /form route
+"ip:port/form"
 
-print(x.text)
+# /query route
+"ip:port/query?query=Moralisme%20progressiste%20et%20pratiques%20punitives%20dans%20la%20lutte%20contre%20les%20violences%20sexistes&hits=3"

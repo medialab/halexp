@@ -42,13 +42,17 @@ class Corpus:
 
         for hd in self.halData:
             sentence = ""
-            if "title_s" in hd:
-                sentence += hd["title_s"][0]
             if "abstract_s" in hd:
                 sentence += hd["abstract_s"][0]
-                self.embeddingData.append(sentence)
             else:
                 pass
+            if "title_s" in hd:
+                sentence += hd["title_s"][0]
+            if "authFirstName_s" in hd:
+                sentence += hd["authFirstName_s"][0]
+            if "authLastName_s" in hd:
+                sentence += hd["authLastName_s"][0]
+            self.embeddingData.append(sentence)
         print(f"Found {len(self.embeddingData)} entries with `abstract_s`.")
 
     def parseAndFormatResults(self, results):

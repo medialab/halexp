@@ -15,12 +15,9 @@ with open(config_path, "r") as fh:
 LOGOURL = params['app']['style']['logoUrl']
 IMAGEWIDTH = params['app']['style']['imageWidth']
 
-
 app = Flask(__name__)
-print(params['corpus'])
 halCorpus = Corpus(**params['corpus'])
 index = Index(corpus=halCorpus, **params['index'])
-
 
 def castInt(k):
     # there is probably a better way of doing this
