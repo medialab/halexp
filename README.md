@@ -1,6 +1,6 @@
 # medialab's expert search engine
 
-![Image description](images.jpeg)
+![Image description](image.jpeg)
 
 POC of an expert search engine for medialab researchers based on HAL publications.
 
