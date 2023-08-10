@@ -41,11 +41,14 @@ class Corpus:
         """
 
         for hd in self.halData:
-            try:
-                self.embeddingData.append(hd["hal"]['meta']["abstract_s"][0])
-            except Exception as e:
+            sentence = ""
+            if "title_s" in hd:
+                sentence += hd["title_s"][0]
+            if "abstract_s" in hd:
+                sentence += hd["abstract_s"][0]
+                self.embeddingData.append(sentence)
+            else:
                 pass
-
         print(f"Found {len(self.embeddingData)} entries with `abstract_s`.")
 
     def parseAndFormatResults(self, results):
@@ -72,7 +75,7 @@ class Corpus:
             res["citation"].append({
                 'score': score,
                 "citation": remove_html_tags(
-                    hd['hal']['meta']['citationFull_s'])
+                    hd['citationFull_s'])
             })
 
         return res
