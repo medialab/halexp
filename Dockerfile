@@ -10,16 +10,24 @@ RUN apt-get update && \
 
 RUN python -m pip install --upgrade pip
 
-# clone project repo and install dependencies
-RUN git clone https://github.com/medialab/halexp.git
-WORKDIR /halexp
-RUN pip install -r requirements.txt
-
 # download sBert models
+RUN python -m pip install sentence-transformers
 RUN python -c "from sentence_transformers import SentenceTransformer; sBert = SentenceTransformer('all-mpnet-base-v2')"
 RUN python -c "from sentence_transformers import SentenceTransformer; sBert = SentenceTransformer('distiluse-base-multilingual-cased-v1')"
 
-COPY hal-productions.json hal-productions.json
+# clone project repo and install dependencies
+RUN git clone https://github.com/medialab/halexp.git
+WORKDIR /halexp
+RUN git pull
+RUN pip install -r /halexp/python/requirements.txt
 
-CMD ["/halexp/script.py"]
-ENTRYPOINT ["python"]
+# download HAL dump
+RUN ls
+COPY get_dump.py get_dump.py
+COPY config.yaml config.yaml
+RUN python get_dump.py
+
+RUN git pull
+
+WORKDIR /halexp/python/halexp
+CMD ["flask", "run", "--host=0.0.0.0", "--debugger"]

@@ -17,19 +17,19 @@ class Corpus:
 
     embeddingData = []
 
-    def __init__(self, dump_path):
+    def __init__(self, dump_path, **kwargs):
 
         self.parseDump(dump_path)
         self.extractInputData()
 
-    def parseDump(self, data_path):
+    def parseDump(self, dump_path):
         """
         Parse data :)
         """
 
-        print(f"Loading and parsing medialab HAL json dump ...")
+        print(f"Loading and parsing medialab HAL json dump ...  ")
 
-        with open(data_path) as f:
+        with open(dump_path) as f:
             self.halData = json.load(f)
 
         print(f"found {len(self.halData)} entries.")

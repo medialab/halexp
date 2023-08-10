@@ -20,7 +20,8 @@ class Index:
     space = 'cosine'
     index = None
 
-    def __init__(self, corpus, sentence_transformer_model, hnswlib_space):
+    def __init__(
+        self, corpus, sentence_transformer_model, hnswlib_space, **kwargs):
 
         self.model_name = sentence_transformer_model
         self.space = hnswlib_space

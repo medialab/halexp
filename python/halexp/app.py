@@ -16,6 +16,8 @@ config = os.path.abspath("../../config.yaml")
 with open(config, "r") as fh:
     params = yaml.load(fh, Loader=yaml.SafeLoader)
 
+logoUrl = params['app']['style']['logoUrl']
+
 app = Flask(__name__)
 halCorpus = Corpus(**params['corpus'])
 index = Index(corpus=halCorpus, **params['index'])
@@ -30,7 +32,7 @@ def castInt(k):
 
 def formatReponseHtml(query, res):
     html = f'''
-        <img src={params['logoUrl']} alt="" style="width:450px;">
+        <img src={logoUrl} alt="" style="width:450px;">
         <h2>Experts search engine</h2>
         </br>
         <h3>Votre requête :</h3>
@@ -53,7 +55,7 @@ def getFormHtml():
     n = "Nombre de réponses souhaitées : "
     return f'''
           <form method="POST">
-              <img src={params['logoUrl']} alt="" style="width:450px;">
+              <img src={logoUrl} alt="" style="width:450px;">
               <h2>Experts search engine</h2>
               </br>
               <div><label>{t}<input type="text" name="query"></label></div>
