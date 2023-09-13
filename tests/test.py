@@ -15,7 +15,6 @@ HITS = 3
 QUERY="Moralisme%20progressiste%20et%20pratiques%20punitives%20dans%20la%20lutte%20contre%20les%20violences%20sexistes"
 URL = f"http://{HOST}:{PORT}/query?query={QUERY}&hits={HITS}"
 
-
 # sending get request and saving the response as response object
 print(f"Quering: {URL}\n")
 res = requests.get(url=URL)
@@ -23,3 +22,4 @@ res = requests.get(url=URL)
 # extracting data in json format
 data = res.json()
 print(data)
+
