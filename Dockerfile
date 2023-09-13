@@ -25,4 +25,4 @@ RUN python get_dump.py --config=config.yaml
 
 ENV APPCONFIG=/halexp/config.yaml
 ENV FLASK_APP=/halexp/python/halexp/app.py
-CMD ["flask", "run", "--host=0.0.0.0", "--debugger"]
+CMD ["flask", "run", "--host=0.0.0.0", "--port=80", "--debugger"]
