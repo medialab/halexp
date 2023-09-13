@@ -1,0 +1,42 @@
+image: docker:stable
+
+stages:
+  - build
+  - deploy
+
+variables:
+  IMAGE_NAME: $CI_REGISTRY/scpomedialab/scpo-experts-search
+
+before_script:
+  - VERSION=$(echo $CI_COMMIT_TAG | sed -nre 's/^v([0-9.]+)$/\1/p')
+  - if [ -n "${VERSION}" ]; then IMAGE_TAG=${VERSION}; else IMAGE_TAG=${CI_COMMIT_REF_SLUG}; fi
+  - echo "$IMAGE_TAG" > config/VERSION
+  - echo "$IMAGE_TAG" > hyphe_frontend/app/conf/VERSION
+  - export KUBECONFIG=$kubeconfig_file
+
+build_image:
+  stage: build
+  script:
+    - docker build -t $IMAGE_NAME:$IMAGE_TAG -f Dockerfile .
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+    - docker push $IMAGE_NAME:$IMAGE_TAG
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+  only:
+    - main
+    - staging
+    - prod
+    - tags
+
+deploy:
+  image:
+    name: jrisp/kubehelper:latest
+    entrypoint: [""]
+  stage: deploy
+  script:
+    - kubectl -n $STACK rollout restart deployment frontend
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+  only:
+   - staging
+   - prod
