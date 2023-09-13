@@ -4,7 +4,6 @@ import json
 import requests
 from argparse import ArgumentParser
 
-
 ap = ArgumentParser()
 ap.add_argument('--config', type=str)
 args = ap.parse_args()
