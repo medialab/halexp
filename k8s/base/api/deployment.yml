@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: api
+  template:
+    metadata:
+      labels:
+        component: api
+    spec:
+      containers:
+        - name: api
+          image: scpomedialab/scpo-experts-search:latest
+          env:
+            - name: API_PORT
+              value: '4000'
+          imagePullPolicy: Always
