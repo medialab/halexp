@@ -1,6 +1,7 @@
 import os
 import time
 import hnswlib
+from tqdm import tqdm
 
 from sentence_transformers import SentenceTransformer
 
@@ -39,9 +40,19 @@ class Index:
     def encodeData(self):
         """
         """
+
+        bsize = 500
+        tsize = len(self.halCorpus.embeddingData)
+        batchl = [
+            (i*bsize, (i+1)*bsize) for i in range(int(tsize/bsize+1))]
+
         print(f"Embedding data...")
         start_time = time.time()
-        self.embeddings = self.model.encode(self.halCorpus.embeddingData)
+        self.embeddings = []
+        for b in tqdm(batchl):
+            batch = self.halCorpus.embeddingData[b[0]: b[1]]
+            self.embeddings.extend(self.model.encode(batch))
+
         print("took {:.2f} seconds.".format(time.time()-start_time))
         self.embedding_size = self.embeddings[0].shape[0]
 
