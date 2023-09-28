@@ -7,7 +7,7 @@ metadata:
     nginx.ingress.kubernetes.io/server-alias: scpo-experts-search.sciencespo.fr
 spec:
   rules:
-  - host: scpo-experts-search.sciencespo.fr
+  - host: experts-search.sciencespo.fr
     http:
       paths:
         - path: /
