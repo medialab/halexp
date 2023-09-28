@@ -21,7 +21,7 @@ build_image:
   environment:
     name: $CI_COMMIT_REF_SLUG
   only:
-    - main
+    - build
     - staging
     - prod
     - tags
