@@ -4,7 +4,7 @@ metadata:
   name: ingress
   annotations:
     ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/server-alias: scpo-experts-search.sciencespo.fr
+    nginx.ingress.kubernetes.io/server-alias: experts-search.sciencespo.fr
 spec:
   rules:
   - host: experts-search.sciencespo.fr
