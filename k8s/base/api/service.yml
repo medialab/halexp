@@ -4,7 +4,7 @@ metadata:
   name: api
 spec:
   ports:
-    - port: 4000
+    - port: 80
   selector:
     component: api
   clusterIP: None
