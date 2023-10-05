@@ -11,5 +11,5 @@ spec:
       paths:
         - path: /
           backend:
-            serviceName: client
+            serviceName: api
             servicePort: 80
