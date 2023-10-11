@@ -17,24 +17,36 @@ params = params['corpus']
 dump_file = os.path.abspath(params['dump_file'])
 
 BASE_URL = params['baseUrl']
-labStructId_i = params['labStructId_i']
-collId_i = params['collId_i']
 PAGINATION_COUNT = params['pagination_count']
-
-query = f"labStructId_i:{labStructId_i}+OR+collId_i:{collId_i}"
+QUERY = "*:*"
 FL_PARAM = '&fl='+','.join(params['fields'])
-url = f"{BASE_URL}/search/index/?q={query}&wt=json&fl={FL_PARAM}"
-url += f"&rows={PAGINATION_COUNT}&cursorMark=&sort=docid+asc"
+PORTAIL = params['portail']
 
-print(f"Query: {url}\n")
+base_url = f"{BASE_URL}/search/{PORTAIL}/?q{QUERY}"
+base_url += f"&wt=json&fl={FL_PARAM}"
+base_url += f"&rows={PAGINATION_COUNT}&sort=docid+asc"
 
 print("Downloading HAL dump...")
-x = requests.get(url)
 
-if x.ok:
-    docs = json.loads(x.text)['response']['docs']
-    with open(dump_file, 'w') as fp:
-        json.dump(docs, fp)
-    print(f"got {len(docs)} entries, saved at {dump_file}.")
-else:
-    print(x)
+cursorMark = "*"
+prevCursorMark = ""
+
+docs = []
+while cursorMark != prevCursorMark:
+
+    url = base_url+f"&cursorMark={cursorMark}"
+    print(url)
+    prevCursorMark = cursorMark
+    x = requests.get(url)
+    if x.ok:
+        res = json.loads(x.text)
+    else:
+        raise ValueError(f"Failed query: {x}")
+    if 'error' in res:
+        raise ValueError(res['error'])
+    docs.extend(res['response']['docs'])
+    cursorMark = res['nextCursorMark']
+
+with open(dump_file, 'w') as fp:
+    json.dump(docs, fp)
+print(f"got {len(docs)} entries, saved at {dump_file}.")

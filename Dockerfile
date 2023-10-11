@@ -84,9 +84,12 @@ RUN apt-get update && \
 RUN git clone https://github.com/medialab/halexp.git
 WORKDIR /halexp
 
-# download HAL dump
-RUN python get_dump.py --config=config.yaml
-
 ENV APPCONFIG=/halexp/config.yaml
 ENV FLASK_APP=/halexp/python/halexp/app.py
-CMD ["flask", "run", "--host=0.0.0.0", "--port=80", "--debugger"]
+
+# to remove when being able to push to github without triggering a build
+COPY config.yaml config.yaml
+COPY get_dump.py get_dump.py
+COPY start.sh start.sh
+COPY python/halexp/index.py python/halexp/index.py
+CMD ["bash", "start.sh"]
