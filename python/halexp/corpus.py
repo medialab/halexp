@@ -27,7 +27,7 @@ class Corpus:
         Parse data :)
         """
 
-        print(f"Loading and parsing medialab HAL json dump ...  ")
+        print(f"Loading and parsing HAL json dump ...  ")
 
         with open(dump_file) as f:
             self.halData = json.load(f)
