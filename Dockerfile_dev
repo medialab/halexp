@@ -84,7 +84,14 @@ RUN apt-get update && \
 RUN git clone https://github.com/medialab/halexp.git
 WORKDIR /halexp
 
+# download sBert models
+RUN python -c "from sentence_transformers import SentenceTransformer; sBert = SentenceTransformer('distiluse-base-multilingual-cased-v1')"
+
 ENV APPCONFIG=/halexp/config.yaml
 ENV FLASK_APP=/halexp/python/halexp/app.py
 
-#CMD ["bash", "start.sh"]
+# get HAL dump
+RUN python get_dump.py --config=config_dev.yaml
+
+# run server
+CMD ["flask", "run", "--host=0.0.0.0", "--port=80", "--debugger"]

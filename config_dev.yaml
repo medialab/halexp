@@ -6,8 +6,8 @@ app:
 corpus:
   dump_file: hal-productions.json
   baseUrl: https://api.archives-ouvertes.fr
-  portail: sciencespo
-  query: '*:*'
+  portail: index
+  query: 'labStructId_i:394361'
   pagination_count: 10000
   fields:
     - sciencespoId_s
