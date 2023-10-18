@@ -75,7 +75,7 @@ def query():
         return {'error': 'Missing `query` argument in query string'}
     nb_hits = request.args.get('hits')
     if nb_hits is None:
-        return {'error': 'Missing `hits` argument in query string'}
+        nb_hits = params['app']['default_nb_hits']
 
     res = index.retrieve(query=query, top_k=castInt(nb_hits))
 

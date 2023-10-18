@@ -18,11 +18,11 @@ dump_file = os.path.abspath(params['dump_file'])
 
 BASE_URL = params['baseUrl']
 PAGINATION_COUNT = params['pagination_count']
-QUERY = "*:*"
+QUERY = params['query']
 FL_PARAM = '&fl='+','.join(params['fields'])
 PORTAIL = params['portail']
 
-base_url = f"{BASE_URL}/search/{PORTAIL}/?q{QUERY}"
+base_url = f"{BASE_URL}/search/{PORTAIL}/?q={QUERY}"
 base_url += f"&wt=json&fl={FL_PARAM}"
 base_url += f"&rows={PAGINATION_COUNT}&sort=docid+asc"
 
