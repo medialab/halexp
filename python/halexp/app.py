@@ -38,7 +38,7 @@ def getFormHtml(imageUrl, imageWidth):
               </br>
               <div><label>{t}<input type="text" name="query"></label></div>
               </br>
-              <div><label>{n}<input type="text" name="hits"></label></div>
+              <div><label>{n}<input type="text" name="hits" value="5"></label></div>
               </br>
               <input type="submit" value="RECHERCHER">
           </form>'''
