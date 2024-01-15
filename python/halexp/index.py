@@ -28,8 +28,6 @@ class Index:
         self.space = hnswlib_space
 
         self.halCorpus = corpus
-        self.loadModel()
-        self.encodeData()
         self.createIndex()
 
     def loadModel(self):
@@ -64,19 +62,32 @@ class Index:
         # vectors to unit length.
 
         """
-        self.index = hnswlib.Index(space=self.space, dim=self.embedding_size)
 
         if os.path.exists(self.index_path):
+            self.index = hnswlib.Index(
+                space=self.space,
+                dim=self.embedding_size)
             print("Loading index...")
             self.index.load_index(self.index_path)
         else:
+
+            self.loadModel()
+            self.encodeData()
+            self.index = hnswlib.Index(
+                space=self.space,
+                dim=self.embedding_size)
+
             print("Start creating HNSWLIB index")
             self.index.init_index(
-                max_elements=len(self.embeddings), ef_construction=400, M=64)
+                max_elements=len(self.embeddings),
+                ef_construction=400,
+                M=64)
 
             # Populate index with embeddings
             self.index.add_items(
-                self.embeddings, list(range(len(self.embeddings))))
+                data=self.embeddings,
+                ids=list(range(len(self.embeddings))),
+                num_threads=-1)
 
             print(f"Saving index to {self.index_path}")
             self.index.save_index(self.index_path)
