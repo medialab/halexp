@@ -95,6 +95,8 @@ def form():
     if request.method == 'POST':
         query = request.form.get('query')
         nb_hits = request.form.get('hits')
+        if nb_hits is None:
+            nb_hits = params['app']['default_nb_hits']
         res = index.retrieve(query=query, top_k=castInt(nb_hits))
         return formatReponseHtml(query, res['citation'], LOGOURL, IMAGEWIDTH)
 
