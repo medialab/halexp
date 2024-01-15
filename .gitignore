@@ -1,6 +1,7 @@
-*hnswlib.index
-*hal-productions.json
-*hal-productions_medialab.json
+hnswlib.index
+hal-productions.json
+hal-productions_medialab.json
+hal-productions_sciencespo.json
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
