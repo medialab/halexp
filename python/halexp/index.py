@@ -27,6 +27,8 @@ class Index:
         self.model_name = sentence_transformer_model
         self.space = hnswlib_space
 
+        self.loadModel()
+
         self.halCorpus = corpus
         self.createIndex()
 
@@ -71,7 +73,6 @@ class Index:
             self.index.load_index(self.index_path)
         else:
 
-            self.loadModel()
             self.encodeData()
             self.index = hnswlib.Index(
                 space=self.space,
