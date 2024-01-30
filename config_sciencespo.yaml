@@ -4,10 +4,13 @@ app:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
-  dump_file: hal-productions.json
+  max_length: 1
+  include_title: true
+  include_author: false
+  dump_file: hal-productions_sciencespo.json
   baseUrl: https://api.archives-ouvertes.fr
-  portail: index
-  query: 'labStructId_i:394361'
+  portail: sciencespo
+  query: '*:*'
   pagination_count: 10000
   fields:
     - sciencespoId_s
@@ -39,8 +42,14 @@ corpus:
     - defenseDate_s
     - authFirstName_s
     - authLastName_s
+    - authFullName_s
+    - authIdHal_i
     - citationFull_s
+    - openAccess_bool
+    - labStructName_s
 index:
     hnswlib_space: cosine
+    ef_construction: 400
+    M: 64
     sentence_transformer_model: distiluse-base-multilingual-cased-v1
-
+    sentence_transformer_model_dim: 512
