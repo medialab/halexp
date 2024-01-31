@@ -53,7 +53,14 @@ class Corpus:
     ]
 
     def __init__(
-        self, dump_file, max_length, include_title, include_author, **kwargs):
+        self,
+        dump_file,
+        max_length,
+        include_title,
+        include_author,
+        include_keywords,
+        filters,
+        **kwargs):
         """
         dump_file[str]: path to the HAL dump in json format.
 
@@ -64,9 +71,13 @@ class Corpus:
 
         include_author [boolean]: wheter to include or not the author
         (first name and last name) of HAL document in the text to be embedded.
+
+        include_keywords [boolean]: wheter to include or not the keywords of
+        the HAL document in the text to be embedded.
         """
 
         self.documents = []
+        self.filters = []
         self.max_length = -1
         self.nb_documents = 0
         self.halIds = set([])
@@ -74,8 +85,19 @@ class Corpus:
         self.doc_max_length = max_length
         self.include_title = include_title
         self.include_author = include_author
+        self.include_keywords = include_keywords
         self.loadDump(dump_file)
         self.createDocuments()
+        self.createDocFilters(filters)
+
+
+    def createDocFilters(self, filters):
+        """
+        Each filter returs True if the document must be filtered.
+        """
+        if 'minYear' in filters:
+            fn = lambda doc: doc.publication_year < int(filters['minYear'])
+            self.filters.append(fn)
 
     def loadDump(self, dump_file):
 
@@ -106,6 +128,20 @@ class Corpus:
             mssg += "without `authIdHal_i` entry."
             print(mssg)
 
+        nb_no_keywords = 0
+        for hd in self.halData:
+            if not 'keyword_s' in hd:
+                hd['keyword_s'] = ['']
+                nb_no_keywords += 1
+                # print(json.dumps(hd, indent=4))
+
+        if nb_no_keywords > 0:
+            mssg = f"Found {nb_no_keywords} HAL docs out of "
+            mssg += f"{len(self.halData)} "
+            mssg += f"({100 * nb_no_keywords / len(self.halData)}%) "
+            mssg += "without `keyword_s` entry."
+            print(mssg)
+
 
     def split(self, string):
         "Apply strategy for splitting phrases from a string."
@@ -115,14 +151,17 @@ class Corpus:
         document = Document(
             self.doc_max_length,
             self.include_title,
-            self.include_author)
+            self.include_author,
+            self.include_keywords)
         document.setMetadata(hd)
         document.setTitle(hd["title_s"][0])
         document.setAuthors(
             hd["authFullName_s"], hd["authIdHal_i"], hd["labStructName_s"])
         document.setPublicationDate(hd["publicationDate_s"])
         document.setUri(hd["uri_s"])
+        document.setHalId(hd["halId_s"])
         document.setOpenAccess(hd["openAccess_bool"])
+        document.setKeywords(hd["keyword_s"])
 
         return document
 
@@ -183,6 +222,11 @@ class Corpus:
         self.nb_documents = len(self.documents)
         print(f"Create {self.nb_documents} documents in Corpus.")
 
+
+    def filter_documents(self, doc):
+        return any([f(doc) for f in self.filters])
+
+
     def parseAndFormatResults(self, results):
 
         corpus_ids = [r['corpus_id'] for r in results]
@@ -197,6 +241,9 @@ class Corpus:
         for i, idx in enumerate(corpus_ids):
 
             document = self.documents[idx]
+            if self.filter_documents(document):
+                continue
+
             score = scores[i]
 
             res["json"].append({
