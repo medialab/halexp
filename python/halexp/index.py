@@ -27,6 +27,7 @@ class Index:
         hnswlib_space,
         ef_construction,
         M,
+        top_k,
         min_threshold_score,
         sentence_transformer_model,
         sentence_transformer_model_dim,
@@ -50,8 +51,14 @@ class Index:
         self.loadModel()
 
         self.halCorpus = corpus
-        self.courpus_length = self.halCorpus.nb_documents
+        self.corpus_length = self.halCorpus.nb_documents
         self.createIndex()
+
+        self.setTopK(top_k)
+
+
+    def setTopK(self, top_k):
+        self.top_k = topk if top_k > 0 else self.corpus_length
 
     def loadModel(self):
         """
@@ -63,7 +70,7 @@ class Index:
         """
 
         bsize = 500
-        tsize = self.courpus_length
+        tsize = self.corpus_length
         batchl = [
             (i*bsize, (i+1)*bsize) for i in range(int(tsize/bsize+1))]
 
@@ -117,58 +124,34 @@ class Index:
             print(f"HNSWLIB index saved to {self.index_path}")
 
 
-    def rank(self, query):
+    def parseAndFilterResults(self, corpus_ids, distances):
+        """
+        Transform distances in scores, sort scores and filter query results.
+        """
+        parsed_results = [
+            {'corpus_id': id, 'score': 1-distance}
+                for id, distance in zip(corpus_ids[0], distances[0])
+                    if 1-distance >= self.min_threshold_score
+        ]
+        sorted_results = sorted(
+            parsed_results,
+            key=lambda x: x['score'],
+            reverse=True)
+        return sorted_results
+
+
+    def retrieve(self, query):
 
         query_embedding = self.model.encode(query)
 
-        start_time = time.time()
-
         # Use hnswlib knn_query method to get the closest embeddings
+        start_time = time.time()
         corpus_ids, distances = self.index.knn_query(
-            query_embedding, k=self.courpus_length)
-
-        # Parse and sort results
-        parsed_results = [
-            {'corpus_id': id, 'score': 1-score}
-            for id, score in zip(corpus_ids[0], distances[0])
-            if 1-score >= self.min_threshold_score]
-        sorted_results = sorted(
-            parsed_results,
-            key=lambda x: x['score'],
-            reverse=True)
-
-        end_time = time.time()
+            query_embedding, k=self.top_k)
+        sorted_results = self.parseAndFilterResults(corpus_ids, distances)
+        took = time.time() - start_time
 
         print(f"Input question:\n{query}")
-        print(f"Index ranked (after {end_time-start_time:.3f} seconds).")
+        print(f"Retrieved {len(sorted_results)} results after {took:.3f} s.")
 
-        return self.halCorpus.parseAndFormatResults(sorted_results)
-
-
-    def retrieve(self, query, top_k):
-
-        query_embedding = self.model.encode(query)
-
-        start_time = time.time()
-
-        # Use hnswlib knn_query method to get the closest embeddings
-        corpus_ids, distances = self.index.knn_query(query_embedding, k=top_k)
-
-        # Parse and sort results
-        parsed_results = [
-            {'corpus_id': id, 'score': 1-score}
-            for id, score in zip(corpus_ids[0], distances[0])
-            if 1-score >= self.min_threshold_score]
-        sorted_results = sorted(
-            parsed_results,
-            key=lambda x: x['score'],
-            reverse=True)
-
-        end_time = time.time()
-
-        print(f"Input question:\n{query}")
-        print(f"Results (after {end_time-start_time:.3f} seconds).")
-
-        results = sorted_results[:top_k]
-
-        return self.halCorpus.parseAndFormatResults(results)
+        return self.halCorpus.formatResults(sorted_results)

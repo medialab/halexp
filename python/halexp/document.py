@@ -13,6 +13,7 @@ class Document:
             include_title,
             include_author,
             include_keywords,
+            include_subtitle,
             **kwargs):
         """
         max_length [int]: maximum lenght of the serie of phrases.
@@ -39,11 +40,13 @@ class Document:
         self.authors = []
         self.keywords = []
         self.open_acces = None
+        self.subtitle = ""
 
         self.max_length = max_length
         self.include_title = include_title
         self.include_author = include_author
         self.include_keywords = include_keywords
+        self.include_subtitle = include_subtitle
 
     def __str__(self):
         _str = f"Document:\n\t{self.title}\n\t{self.publication_date}"
@@ -62,6 +65,9 @@ class Document:
 
     def setHalId(self, hal_id):
         self.hal_id = hal_id
+
+    def setSubtitle(self, subtitle):
+        self.subtitle = subtitle
 
     def setOpenAccess(self, open_access):
         self.open_acces = open_access
@@ -94,6 +100,8 @@ class Document:
             data += self.keywords
         if self.include_title:
             data += [self.title]
+        if self.include_subtitle:
+            data += [self.subtitle]
         if self.include_author:
             data += [a.authFullName for a in self.authors]
         return ' '.join(data)

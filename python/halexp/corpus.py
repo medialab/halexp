@@ -59,6 +59,7 @@ class Corpus:
         include_title,
         include_author,
         include_keywords,
+        include_subtitle,
         filters,
         **kwargs):
         """
@@ -86,10 +87,12 @@ class Corpus:
         self.include_title = include_title
         self.include_author = include_author
         self.include_keywords = include_keywords
+        self.include_subtitle = include_subtitle
         self.loadDump(dump_file)
         self.createDocuments()
         self.createDocFilters(filters)
 
+        exit()
 
     def createDocFilters(self, filters):
         """
@@ -98,6 +101,29 @@ class Corpus:
         if 'minYear' in filters:
             fn = lambda doc: doc.publication_year < int(filters['minYear'])
             self.filters.append(fn)
+
+
+    def checkAndReplaceMissingMetadata(
+        self,
+        key,
+        replace_value='',
+        replace_nb_key=None):
+
+        nb_missing = 0
+        for hd in self.halData:
+            if not key in hd:
+                replace = [replace_value,]
+                if replace_nb_key:
+                    replace = replace * len(hd[replace_nb_key])
+                hd[key] = replace
+                nb_missing += 1
+
+        if nb_missing > 0:
+            mssg = f"Found {nb_missing} HAL docs out of "
+            mssg += f"{len(self.halData)} "
+            mssg += f"({100 * nb_missing / len(self.halData):.2f}%) "
+            mssg += f"without `{key}` entry."
+            print(mssg)
 
     def loadDump(self, dump_file):
 
@@ -114,34 +140,10 @@ class Corpus:
 
         print(f"found {len(self.halData)} unique entries.")
 
-        nb_no_auth_idhal = 0
-        for hd in self.halData:
-            if not 'authIdHal_i' in hd:
-                hd['authIdHal_i'] = [-1, ] * len(hd['authFullName_s'])
-                nb_no_auth_idhal += 1
-                # print(json.dumps(hd, indent=4))
-
-        if nb_no_auth_idhal > 0:
-            mssg = f"Found {nb_no_auth_idhal} HAL docs out of "
-            mssg += f"{len(self.halData)} "
-            mssg += f"({100 * nb_no_auth_idhal / len(self.halData)}%) "
-            mssg += "without `authIdHal_i` entry."
-            print(mssg)
-
-        nb_no_keywords = 0
-        for hd in self.halData:
-            if not 'keyword_s' in hd:
-                hd['keyword_s'] = ['']
-                nb_no_keywords += 1
-                # print(json.dumps(hd, indent=4))
-
-        if nb_no_keywords > 0:
-            mssg = f"Found {nb_no_keywords} HAL docs out of "
-            mssg += f"{len(self.halData)} "
-            mssg += f"({100 * nb_no_keywords / len(self.halData)}%) "
-            mssg += "without `keyword_s` entry."
-            print(mssg)
-
+        self.checkAndReplaceMissingMetadata('keyword_s')
+        self.checkAndReplaceMissingMetadata('labStructName_s')
+        self.checkAndReplaceMissingMetadata(
+            'authIdHal_i', replace_nb_key='authFullName_s')
 
     def split(self, string):
         "Apply strategy for splitting phrases from a string."
@@ -152,9 +154,13 @@ class Corpus:
             self.doc_max_length,
             self.include_title,
             self.include_author,
-            self.include_keywords)
+            self.include_keywords,
+            self.include_subtitle
+        )
         document.setMetadata(hd)
         document.setTitle(hd["title_s"][0])
+        if not 'labStructName_s' in hd:
+            hd["labStructName_s"] = "NOT FOUND"
         document.setAuthors(
             hd["authFullName_s"], hd["authIdHal_i"], hd["labStructName_s"])
         document.setPublicationDate(hd["publicationDate_s"])
@@ -162,6 +168,8 @@ class Corpus:
         document.setHalId(hd["halId_s"])
         document.setOpenAccess(hd["openAccess_bool"])
         document.setKeywords(hd["keyword_s"])
+        if 'subtitle_s' in hd:
+            document.setSubtitle(hd["subtitle_s"])
 
         return document
 
@@ -227,7 +235,7 @@ class Corpus:
         return any([f(doc) for f in self.filters])
 
 
-    def parseAndFormatResults(self, results):
+    def formatResults(self, results):
 
         corpus_ids = [r['corpus_id'] for r in results]
         scores = [r['score'] for r in results]
@@ -255,7 +263,8 @@ class Corpus:
                 'score': score,
                 "citation": remove_html_tags(
                     document.metadata['citationFull_s']),
-                "embedded": document.getPhrasesForEmbedding()
+                "embedded": document.getPhrasesForEmbedding(),
+                "hal_id": document.hal_id,
             })
 
         return res
