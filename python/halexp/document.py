@@ -8,7 +8,12 @@ class Document:
     to wich it belongs to.
     """
 
-    def __init__(self, max_length, include_title, include_author, **kwargs):
+    def __init__(self,
+            max_length,
+            include_title,
+            include_author,
+            include_keywords,
+            **kwargs):
         """
         max_length [int]: maximum lenght of the serie of phrases.
 
@@ -17,6 +22,10 @@ class Document:
 
         include_author [boolean]: wheter to include or not the author
         (first name and last name) of HAL document in the text to be embedded.
+
+        include_keywords [boolean]: wheter to include or not the keywords of
+        the HAL document in the text to be embedded.
+
         """
         self.phrases = []
         self.metadata = {}
@@ -24,13 +33,17 @@ class Document:
 
         self.title = ""
         self.publication_date = -1
+        self.year = -1
         self.uri = ""
+        self.hal_id = ""
         self.authors = []
+        self.keywords = []
         self.open_acces = None
 
         self.max_length = max_length
         self.include_title = include_title
         self.include_author = include_author
+        self.include_keywords = include_keywords
 
     def __str__(self):
         _str = f"Document:\n\t{self.title}\n\t{self.publication_date}"
@@ -47,19 +60,20 @@ class Document:
     def setUri(self, uri):
         self.uri = uri
 
+    def setHalId(self, hal_id):
+        self.hal_id = hal_id
+
     def setOpenAccess(self, open_access):
         self.open_acces = open_access
 
     def setPublicationDate(self, publication_date):
         self.publication_date = publication_date
+        self.publication_year = int(publication_date.split('-')[0])
+
+    def setKeywords(self, keywords):
+        self.keywords = keywords
 
     def setAuthors(self, authors_full_names, authors_idhal, authors_labs):
-        assert type(authors_full_names) == list
-        assert type(authors_idhal) == list
-        assert type(authors_labs) == list
-        assert set(map(type, authors_labs)) == {str}
-        assert set(map(type, authors_full_names)) == {str}
-        assert set(map(type, authors_idhal)) == {int}
         self.authors = [
             Author(n, i, l)
             for n, i, l in zip(authors_full_names, authors_idhal, authors_labs)]
@@ -76,8 +90,10 @@ class Document:
 
     def getPhrasesForEmbedding(self):
         data = self.phrases
+        if self.include_keywords:
+            data += self.keywords
         if self.include_title:
             data += [self.title]
         if self.include_author:
-            data += [self.authFirstName, self.authLastName]
+            data += [a.authFullName for a in self.authors]
         return ' '.join(data)
