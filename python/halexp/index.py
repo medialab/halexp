@@ -26,6 +26,7 @@ class Index:
         index_path,
         hnswlib_space,
         ef_construction,
+        num_threads,
         M,
         top_k,
         min_threshold_score,
@@ -45,7 +46,8 @@ class Index:
         self.model_name = sentence_transformer_model
         self.embedding_size = sentence_transformer_model_dim
         self.space = hnswlib_space
-        self.index_path = f"./index/{index_path}_hnswlib.index"
+        self.num_threads = num_threads
+        self.index_path = index_path
         self.min_threshold_score = float(min_threshold_score)
 
         self.loadModel()
@@ -61,8 +63,6 @@ class Index:
         self.top_k = topk if top_k > 0 else self.corpus_length
 
     def loadModel(self):
-        """
-        """
         self.model = SentenceTransformer(self.model_name)
 
     def encodeData(self):
@@ -93,7 +93,6 @@ class Index:
         # vectors to unit length.
 
         """
-
         if not os.path.exists(self.index_path):
             self.encodeData()
 
@@ -113,7 +112,7 @@ class Index:
                 max_elements=len(self.embeddings),
                 ef_construction=400,
                 M=64)
-            self.index.set_num_threads(1)
+            self.index.set_num_threads(self.num_threads)
             print("Populating HNSWLIB index...")
             # Populate index with embeddings
             self.index.add_items(
@@ -133,11 +132,13 @@ class Index:
                 for id, distance in zip(corpus_ids[0], distances[0])
                     if 1-distance >= self.min_threshold_score
         ]
-        sorted_results = sorted(
-            parsed_results,
-            key=lambda x: x['score'],
-            reverse=True)
-        return sorted_results
+
+        # sorted_results = sorted(
+        #     parsed_results,
+        #     key=lambda x: x['score'],
+        #     reverse=True)
+
+        return parsed_results
 
 
     def retrieve(self, query):
