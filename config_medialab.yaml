@@ -4,53 +4,49 @@ app:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
-  max_length: 1
-  include_title: true
-  include_author: false
+  max_length: 5
+  use_keys:
+    abstract: true
+    title: true
+    subtitle: true
+    keywords: true
   dump_file: hal-productions_medialab.json
   baseUrl: https://api.archives-ouvertes.fr
   portail: index
   query: 'labStructId_i:394361'
   pagination_count: 10000
   fields:
-    - sciencespoId_s
+    # - sciencespoId_s
     - halId_s
     - uri_s
-    - docType_s
-    - language_s
+    # - docType_s
+    # - language_s
     - title_s
     - subtitle_s
     - abstract_s
-    - description_s
-    - en_title_s
-    - en_subTitle_s
-    - en_abstract_s
-    - en_description_s
-    - fr_title_s
-    - fr_subTitle_s
-    - fr_abstract_s
-    - fr_description_s
-    - modifiedDate_s
-    - submittedDate_s
-    - releasedDate_s
-    - producedDate_s
+    # - description_s
     - publicationDate_s
-    - ePublicationDate_s
-    - conferenceStartDate_s
-    - conferenceEndDate_s
-    - writingDate_s
-    - defenseDate_s
-    - authFirstName_s
-    - authLastName_s
+    # - ePublicationDate_s
+    # - conferenceStartDate_s
+    # - conferenceEndDate_s
+    # - writingDate_s
+    # - defenseDate_s
+    # - authFirstName_s
+    # - authLastName_s
     - authFullName_s
     - authIdHal_i
     - citationFull_s
     - openAccess_bool
     - labStructName_s
+    - keyword_s
+  filters:
+    minYear: 1900
 index:
     hnswlib_space: cosine
     ef_construction: 400
     M: 64
+    num_threads: 1
     sentence_transformer_model: distiluse-base-multilingual-cased-v1
     sentence_transformer_model_dim: 512
-
+    min_threshold_score: 0.35
+    top_k: -1

@@ -1,4 +1,5 @@
-hnswlib.index
+
+*.index
 hal-productions.json
 hal-productions_medialab.json
 hal-productions_sciencespo.json
