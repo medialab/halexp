@@ -87,6 +87,9 @@ class Document:
                 f"Number of max phrases ({self.max_length}) already attended.")
         self.phrases.append(new_phrase)
 
+    def getHalId(self):
+        return self.hal_id
+
     def getAuthors(self):
         return self.authors
 

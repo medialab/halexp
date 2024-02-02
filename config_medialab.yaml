@@ -48,5 +48,5 @@ index:
     num_threads: 1
     sentence_transformer_model: distiluse-base-multilingual-cased-v1
     sentence_transformer_model_dim: 512
-    min_threshold_score: 0.35
+    min_threshold_score: 0.4
     top_k: -1

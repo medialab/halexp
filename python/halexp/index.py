@@ -22,7 +22,6 @@ class Index:
 
     def __init__(
         self,
-        corpus,
         index_path,
         hnswlib_space,
         ef_construction,
@@ -52,25 +51,15 @@ class Index:
 
         self.loadModel()
 
-        self.halCorpus = corpus
-        self.corpus_length = self.halCorpus.nb_documents
-        self.createIndex()
-
-        self.setTopK(top_k)
-
-
-    def setTopK(self, top_k):
-        self.top_k = topk if top_k > 0 else self.corpus_length
-
     def loadModel(self):
         self.model = SentenceTransformer(self.model_name)
 
-    def encodeData(self):
+    def encodeData(self, documents):
         """
         """
 
         bsize = 500
-        tsize = self.corpus_length
+        tsize = len(documents)
         batchl = [
             (i*bsize, (i+1)*bsize) for i in range(int(tsize/bsize+1))]
 
@@ -78,14 +67,15 @@ class Index:
         start_time = time.time()
         self.embeddings = []
         for b in tqdm(batchl):
-            batchDocs = self.halCorpus.documents[b[0]: b[1]]
+            batchDocs = documents[b[0]: b[1]]
             batch = [d.getPhrasesForEmbedding() for d in batchDocs]
             self.embeddings.extend(self.model.encode(batch))
 
         print("took {:.2f} seconds.".format(time.time()-start_time))
         self.embedding_size = self.embeddings[0].shape[0]
+        self.index_length = tsize
 
-    def createIndex(self):
+    def createIndex(self, documents):
         """
         Creates a Hierarchical Navigable Small World graphs (HNSW) index
         containing the sentences embeddings.
@@ -94,7 +84,7 @@ class Index:
 
         """
         if not os.path.exists(self.index_path):
-            self.encodeData()
+            self.encodeData(documents)
 
         # Declare index
         self.index = hnswlib.Index(
@@ -105,8 +95,10 @@ class Index:
             self.index.load_index(
                 self.index_path,
                 max_elements=len(self.embeddings))
-            print(f"HNSWLIB index loaded from {self.index_path}...")
-            print(self.index)
+            print(
+                f"Index: index loaded from {self.index_path}: {self.index} th={self.min_threshold_score}")
+            self.index_length = len(documents)
+
         else:
             self.index.init_index(
                 max_elements=len(self.embeddings),
@@ -133,26 +125,22 @@ class Index:
                     if 1-distance >= self.min_threshold_score
         ]
 
-        # sorted_results = sorted(
-        #     parsed_results,
-        #     key=lambda x: x['score'],
-        #     reverse=True)
-
         return parsed_results
 
 
-    def retrieve(self, query):
+    def retrieve(self, query, top_k):
+
+        top_k = top_k if top_k > 0 else self.index_length
 
         query_embedding = self.model.encode(query)
 
         # Use hnswlib knn_query method to get the closest embeddings
         start_time = time.time()
         corpus_ids, distances = self.index.knn_query(
-            query_embedding, k=self.top_k)
-        sorted_results = self.parseAndFilterResults(corpus_ids, distances)
-        took = time.time() - start_time
+            query_embedding, k=top_k)
+        parsed_res = self.parseAndFilterResults(corpus_ids, distances)
+        t = time.time() - start_time
 
-        print(f"Input question:\n{query}")
-        print(f"Retrieved {len(sorted_results)} results after {took:.3f} s.")
+        print(f"Index: retrieved {len(parsed_res)} results after {t:.5f} s.")
 
-        return self.halCorpus.formatResults(sorted_results)
+        return parsed_res

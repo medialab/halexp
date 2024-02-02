@@ -4,7 +4,6 @@ from tqdm import tqdm
 import numpy as np
 
 from .document import Document
-from .utils import split_into_sentences
 
 def remove_html_tags(text):
     """Remove html tags from a string"""
@@ -54,7 +53,7 @@ class Corpus:
         "Commentaire d’arrêt"
     ]
 
-    def __init__(self, dump_file, max_length, use_keys, filters, **kwargs):
+    def __init__(self, index, dump_file, max_length, use_keys, filters, **kwargs):
         """
         dump_file[str]: path to the HAL dump in json format.
 
@@ -63,6 +62,8 @@ class Corpus:
         use_keys [dict]: wheter to include or not the title, subtirle,
         author and keywords of HAL document in the text to be embedded.
         """
+
+        self.index = index
 
         self.documents = []
         self.filters = []
@@ -76,6 +77,10 @@ class Corpus:
         self.loadDump(dump_file)
         self.createDocuments()
         self.createDocFilters(filters)
+
+        self.index.createIndex(self.documents)
+
+
 
     def createDocFilters(self, filters):
         """
@@ -102,7 +107,7 @@ class Corpus:
                 nb_missing += 1
 
         if nb_missing > 0:
-            mssg = f"Found {nb_missing} HAL docs out of "
+            mssg = f"Corpus: Found {nb_missing} HAL docs out of "
             mssg += f"{len(self.halData)} "
             mssg += f"({100 * nb_missing / len(self.halData):.2f}%) "
             mssg += f"without `{key}` entry."
@@ -110,7 +115,6 @@ class Corpus:
 
     def loadDump(self, dump_file):
 
-        print(f"Loading HAL json dump... ")
 
         with open(dump_file) as f:
             self.halData = json.load(f)
@@ -121,7 +125,8 @@ class Corpus:
             raise ValueError(
                 f"There are documents in dump with repeated 'halId_s' key.")
 
-        print(f"found {len(self.halData)} unique entries.")
+        print(
+            f"Corpus: found {len(self.halData)} unique entries from json dump.")
 
         self.checkAndReplaceMissingMetadata('keyword_s', '')
         self.checkAndReplaceMissingMetadata('title_s', '')
@@ -182,7 +187,7 @@ class Corpus:
                 self.documents.append(
                     self.createDocument(hd, hd['subtitle_s']))
         nb_docs = len(self.documents)
-        print(f"{nb_docs} documents created from metadata.")
+        print(f"Corpus: {nb_docs} documents created from metadata.")
 
         if self.include['abstract']:
             for hd in self.halData:
@@ -198,33 +203,57 @@ class Corpus:
                         document = self.createDocument(hd, phrases)
                         self.documents.append(document)
         self.nb_documents = len(self.documents)
-        print(f"{self.nb_documents - nb_docs} documents from valid abstracts.")
+        print(
+            f"Corpus: {self.nb_documents - nb_docs} docs from valid abstracts.")
 
-    def filter_documents(self, doc):
+    def filter_document(self, doc):
         return any([f(doc) for f in self.filters])
 
-    def formatResults(self, results):
-
-        filtered_docs = []
+    def filter_documents(self, results):
+        filter_docs = []
         scores = []
+
+        l0 = len(results)
         for r in results:
             document = self.documents[r['corpus_id']]
-            if self.filter_documents(document):
+            if self.filter_document(document):
                 continue
-            filtered_docs.append(document)
+            filter_docs.append(document)
             scores.append(r['score'])
+        print(
+            f"Corpus: Filtered {l0 - len(filter_docs)} out of {l0}.")
+
+        return scores, filter_docs
+
+    def sortAndRankResults(self, agg_scores_dics):
+
+        sorted_results = sorted(
+            agg_scores_dics,
+            key=lambda x: x['rank_score'],
+            reverse=True)
+
+        for k, sr in enumerate(sorted_results):
+            sr.update({'rank': k})
+
+        return sorted_results
+
+    def sortFilterAndFormatAuthorsResults(self, results):
+
+        scores, filter_docs = self.filter_documents(results)
 
         authors_agg_scores = dict()
-        for score, doc in zip(scores, filtered_docs):
+        for score, doc in zip(scores, filter_docs):
             for author in doc.getAuthors():
                 if not author in authors_agg_scores:
                     authors_agg_scores[author] = {'scores': [], 'docs': []}
                 authors_agg_scores[author]['scores'].append(score)
                 authors_agg_scores[author]['docs'].append(doc)
 
+        print(f"Corpus: found {len(authors_agg_scores)} different authors.")
+
         authors_agg_scores_r = [{
             'author': a,
-            'score': np.log(len(d['scores'])) * np.mean(d['scores']),
+            'rank_score': np.log(1+len(d['scores'])) * np.mean(d['scores']),
             'docs_scores': d['scores'],
             'docs_median_score': np.median(d['scores']),
             'docs_mean_score': np.mean(d['scores']),
@@ -234,42 +263,40 @@ class Corpus:
             'docs': d['docs']}
                 for a, d in authors_agg_scores.items()]
 
-        sorted_results = sorted(
-            authors_agg_scores_r,
-            key=lambda x: x['score'],
-            reverse=True)
+        return self.sortAndRankResults(authors_agg_scores_r)
 
-        for k, sr in enumerate(sorted_results):
-            sr.update({'rank': k})
 
-        res = {
-            "citation": sorted_results,
-            "json": sorted_results
-        }
+    def sortFilterAndFormatPapersResults(self, results):
 
-        # res = {
-        #     "citation": [],
-        #     "json": []
+        scores, filter_docs = self.filter_documents(results)
 
-        # }
+        docs_agg_scores = dict()
+        for score, doc in zip(scores, filter_docs):
+            if not doc in docs_agg_scores:
+                docs_agg_scores[doc] = []
+            docs_agg_scores[doc].append(score)
 
-        # for sr in sorted_results:
+        print(f"Corpus: Found {len(docs_agg_scores)} different documents.")
 
-        #     score = sr['mean_score']
+        docs_agg_scores_r = [{
+            'rank_score': np.log(1+len(scores)) * np.mean(scores),
+            'doc_scores': scores,
+            'doc_median_score': np.median(scores),
+            'doc_mean_score': np.mean(scores),
+            'doc_max_score': np.max(scores),
+            'doc_min_score': np.min(scores),
+            'nb_hits': len(scores),
+            'doc': doc}
+                for doc, scores in docs_agg_scores.items()]
 
-        #     res["json"].append({
-        #         'score': score,
-        #         'data': document.metadata
-        #     })
+        return self.sortAndRankResults(docs_agg_scores_r)
 
-        #     res["citation"].append({
-        #         'score': score,
-        #         "citation": remove_html_tags(
-        #             document.metadata['citationFull_s']),
-        #         "embedded": document.getPhrasesForEmbedding(),
-        #         "hal_id": document.hal_id,
-        #     })
 
-        return res
+    def retrieveAuthors(self, query, top_k):
+        return self.sortFilterAndFormatAuthorsResults(
+            self.index.retrieve(query, top_k))
 
+    def retrievePapers(self, query, top_k):
+        return self.sortFilterAndFormatPapersResults(
+            self.index.retrieve(query, top_k))
 
