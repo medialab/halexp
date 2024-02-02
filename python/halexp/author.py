@@ -7,9 +7,15 @@ class Author:
 
     def __init__(self, full_name, id_hal, lab):
 
-        self.authFullName = full_name
+        self.fullName = full_name
         self.authIdHal = id_hal
         self.authLab = lab
 
     def __str__(self):
-         return f"{self.authFullName} | {self.authIdHal} | {self.authLab}"
+         return f"{self.fullName} | {self.authIdHal} | {self.authLab}"
+
+    def __eq__(self, other):
+        return self.authIdHal == other.authIdHal
+
+    def __hash__(self):
+        return hash(self.authIdHal)

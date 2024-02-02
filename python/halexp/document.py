@@ -8,15 +8,8 @@ class Document:
     to wich it belongs to.
     """
 
-    def __init__(self,
-            max_length,
-            include_title,
-            include_author,
-            include_keywords,
-            include_subtitle,
-            **kwargs):
+    def __init__(self, phrases, **kwargs):
         """
-        max_length [int]: maximum lenght of the serie of phrases.
 
         include_title [boolean]: wheter to include or not the title of HAL
         document in the text to be embedded.
@@ -28,11 +21,11 @@ class Document:
         the HAL document in the text to be embedded.
 
         """
-        self.phrases = []
+        self.phrases = phrases
         self.metadata = {}
         self.max_length = -1
 
-        self.title = ""
+        self.title = None
         self.publication_date = -1
         self.year = -1
         self.uri = ""
@@ -42,23 +35,24 @@ class Document:
         self.open_acces = None
         self.subtitle = ""
 
-        self.max_length = max_length
-        self.include_title = include_title
-        self.include_author = include_author
-        self.include_keywords = include_keywords
-        self.include_subtitle = include_subtitle
-
     def __str__(self):
-        _str = f"Document:\n\t{self.title}\n\t{self.publication_date}"
+        _str = f"{self.title}\n\t{self.publication_date}\n\t{self.hal_id}"
         for n, a in enumerate(self.authors):
             _str += f"\n\tAuthor {n}: {a}"
+        _str += f"\n\t`{self.getPhrasesForEmbedding()}`"
         return _str
+
+    def __eq__(self, other):
+        return self.hal_id == other.hal_id
+
+    def __hash__(self):
+        return hash(self.hal_id+self.title)
 
     def setMetadata(self, metadata):
         self.metadata = metadata
 
     def setTitle(self, title):
-        self.title = title
+        self.title = title+'.'
 
     def setUri(self, uri):
         self.uri = uri
@@ -84,7 +78,6 @@ class Document:
             Author(n, i, l)
             for n, i, l in zip(authors_full_names, authors_idhal, authors_labs)]
 
-
     def setAuthLastName(self, authLastName):
         self.authLastName = authLastName
 
@@ -94,14 +87,11 @@ class Document:
                 f"Number of max phrases ({self.max_length}) already attended.")
         self.phrases.append(new_phrase)
 
+    def getAuthors(self):
+        return self.authors
+
+    def getAuthorsFullNames(self):
+        return [a.fullName for a in self.authors]
+
     def getPhrasesForEmbedding(self):
-        data = self.phrases
-        if self.include_keywords:
-            data += self.keywords
-        if self.include_title:
-            data += [self.title]
-        if self.include_subtitle:
-            data += [self.subtitle]
-        if self.include_author:
-            data += [a.authFullName for a in self.authors]
-        return ' '.join(data)
+        return '\n\t'.join(self.phrases)
