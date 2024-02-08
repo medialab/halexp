@@ -16,8 +16,11 @@ LOGOURL = params['app']['style']['logoUrl']
 IMAGEWIDTH = params['app']['style']['imageWidth']
 
 app = Flask(__name__)
-halCorpus = Corpus(**params['corpus'])
-index = Index(corpus=halCorpus, **params['index'])
+
+params['index']['index_path'] = setIndexPath(params)
+index = Index(**params['index'])
+
+halCorpus = Corpus(index=index, **params['corpus'])
 
 def castInt(k):
     # there is probably a better way of doing this
@@ -25,6 +28,19 @@ def castInt(k):
         return int(k)
     except:
         abort(400)
+
+def setIndexPath(params):
+    indexPath = f"{params['corpus']['portail']}_"
+    indexPath += f"{params['corpus']['query']}_"
+    indexPath += f"max_length_{params['corpus']['max_length']}"
+    if params['corpus']['use_keys']['title']:
+        indexPath += f"_title"
+    if params['corpus']['use_keys']['subtitle']:
+        indexPath += f"_subtitle"
+    if params['corpus']['use_keys']['keywords']:
+        indexPath += f"_keywords"
+    indexPath = os.path.join('index', indexPath.replace('*:*', 'xxx')+'.index')
+    return indexPath
 
 def getFormHtml(imageUrl, imageWidth):
     t = "Veuillez saisir une phrase "
@@ -66,7 +82,7 @@ def formatReponseHtml(query, res, imageUrl, imageWidth):
 def landing():
     return redirect("form")
 
-@app.route('/query')
+@app.route('/authors/query')
 def query():
     """
     """
@@ -81,7 +97,7 @@ def query():
 
     return jsonify(reponses=res['json'])
 
-@app.route('/form', methods=['GET', 'POST'])
+@app.route('/authors/form', methods=['GET', 'POST'])
 def form():
     """
     Allows both GET and POST requests.
@@ -97,7 +113,7 @@ def form():
         nb_hits = request.form.get('hits')
         if nb_hits is None:
             nb_hits = params['app']['default_nb_hits']
-        res = index.retrieve(query=query, top_k=castInt(nb_hits))
+        res = corpus.retrieve(query=query, top_k=castInt(nb_hits))
         return formatReponseHtml(query, res['citation'], LOGOURL, IMAGEWIDTH)
 
     return getFormHtml(LOGOURL, IMAGEWIDTH)
