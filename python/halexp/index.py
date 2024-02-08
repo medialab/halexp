@@ -8,7 +8,8 @@ from sentence_transformers import SentenceTransformer
 
 class Index:
     """
-    Class for retreiving things :)
+    This class index the phrases of a corpus documents using a sentence bert
+    model and Hierarchical Navigable Small World graphs (HNSW).
     """
 
     halCorpus = None
@@ -27,8 +28,7 @@ class Index:
         ef_construction,
         num_threads,
         M,
-        top_k,
-        min_threshold_score,
+        batch_size,
         sentence_transformer_model,
         sentence_transformer_model_dim,
         **kwargs):
@@ -42,28 +42,35 @@ class Index:
         Higher M leads to higher accuracy/run_time at fixed ef/efConstruction
         """
 
+
         self.model_name = sentence_transformer_model
         self.embedding_size = sentence_transformer_model_dim
+
+        self.length = -1
         self.space = hnswlib_space
         self.num_threads = num_threads
-        self.index_path = index_path
-        self.min_threshold_score = float(min_threshold_score)
+        self.path = index_path
+        self.indexKwargs = {'M': M, 'ef_construction': ef_construction}
+
+        self.batch_size = batch_size
 
         self.loadModel()
+
+    def __str__(self):
+        _str = f"HNSW index: embedding_size {self.embedding_size}"
+        _str += f" | length {self.length}"
+        return _str
 
     def loadModel(self):
         self.model = SentenceTransformer(self.model_name)
 
-    def encodeData(self, documents):
-        """
-        """
-
-        bsize = 500
+    def embedData(self, documents):
+        bsize = self.batch_size
         tsize = len(documents)
         batchl = [
             (i*bsize, (i+1)*bsize) for i in range(int(tsize/bsize+1))]
 
-        print(f"Embedding data...")
+        print(f"Index: embedding data for {len(documents)} documents...")
         start_time = time.time()
         self.embeddings = []
         for b in tqdm(batchl):
@@ -71,9 +78,7 @@ class Index:
             batch = [d.getPhrasesForEmbedding() for d in batchDocs]
             self.embeddings.extend(self.model.encode(batch))
 
-        print("took {:.2f} seconds.".format(time.time()-start_time))
-        self.embedding_size = self.embeddings[0].shape[0]
-        self.index_length = tsize
+        print("Index: took {:.2f} seconds.".format(time.time()-start_time))
 
     def createIndex(self, documents):
         """
@@ -81,64 +86,61 @@ class Index:
         containing the sentences embeddings.
         The HNSWLIB index uses dot-product as Index and normalize
         # vectors to unit length.
-
         """
-        if not os.path.exists(self.index_path):
-            self.encodeData(documents)
+        self.length = len(documents)
 
         # Declare index
         self.index = hnswlib.Index(
             space=self.space,
             dim=self.embedding_size)
 
-        if os.path.exists(self.index_path):
-            self.index.load_index(
-                self.index_path,
-                max_elements=len(self.embeddings))
-            print(
-                f"Index: index loaded from {self.index_path}: {self.index} th={self.min_threshold_score}")
-            self.index_length = len(documents)
-
-        else:
-            self.index.init_index(
-                max_elements=len(self.embeddings),
-                ef_construction=400,
-                M=64)
+        # load index and check its coherence
+        if os.path.exists(self.path):
+            self.index.load_index(self.path, max_elements=self.length)
+            print(f"Index: index loaded from {self.path}.\n{self}")
+            a1 = self.embedding_size == self.index.dim
+            a2 = self.space == self.index.space
+            if not a1 and a2:
+                raise ValueError(f"Index loaded not coherent with parameters.")
             self.index.set_num_threads(self.num_threads)
-            print("Populating HNSWLIB index...")
-            # Populate index with embeddings
+        # init index and populate it with embeddings
+        else:
+            self.embedData(documents)
+            self.index.init_index(max_elements=self.length, **self.indexKwargs)
+            self.index.set_num_threads(self.num_threads)
+            print("Index: populating HNSWLIB index...")
             self.index.add_items(
-                data=self.embeddings,
-                ids=list(range(len(self.embeddings))))
-
-            self.index.save_index(self.index_path)
-            print(f"HNSWLIB index saved to {self.index_path}")
+                data=self.embeddings, ids=list(range(self.length)))
+            self.index.save_index(self.path)
+            print(f"Index: HNSW index saved to {self.path}\n{self}")
 
 
-    def parseAndFilterResults(self, corpus_ids, distances):
+    def parseAndFilterResults(self, corpus_ids, distances, score_threshold):
         """
         Transform distances in scores, sort scores and filter query results.
         """
         parsed_results = [
             {'corpus_id': id, 'score': 1-distance}
                 for id, distance in zip(corpus_ids[0], distances[0])
-                    if 1-distance >= self.min_threshold_score
+                    if 1-distance >= score_threshold
         ]
 
         return parsed_results
 
 
-    def retrieve(self, query, top_k):
+    def retrieve(self, query, top_k, score_threshold):
 
-        top_k = top_k if top_k > 0 else self.index_length
+        top_k = top_k if top_k > 0 else min(self.length, 10000)
 
         query_embedding = self.model.encode(query)
 
         # Use hnswlib knn_query method to get the closest embeddings
         start_time = time.time()
+
         corpus_ids, distances = self.index.knn_query(
             query_embedding, k=top_k)
-        parsed_res = self.parseAndFilterResults(corpus_ids, distances)
+        parsed_res = self.parseAndFilterResults(
+            corpus_ids, distances, score_threshold)
         t = time.time() - start_time
 
         print(f"Index: retrieved {len(parsed_res)} results after {t:.5f} s.")

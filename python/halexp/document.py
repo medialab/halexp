@@ -8,7 +8,7 @@ class Document:
     to wich it belongs to.
     """
 
-    def __init__(self, phrases, **kwargs):
+    def __init__(self, phrases, max_length, **kwargs):
         """
 
         include_title [boolean]: wheter to include or not the title of HAL
@@ -21,10 +21,7 @@ class Document:
         the HAL document in the text to be embedded.
 
         """
-        self.phrases = phrases
         self.metadata = {}
-        self.max_length = -1
-
         self.title = None
         self.publication_date = -1
         self.year = -1
@@ -34,6 +31,10 @@ class Document:
         self.keywords = []
         self.open_acces = None
         self.subtitle = ""
+        self.phrases = []
+
+        self.max_length = max_length
+        self.setPhrases(phrases)
 
     def __str__(self):
         _str = f"{self.title}\n\t{self.publication_date}\n\t{self.hal_id}"
@@ -47,6 +48,15 @@ class Document:
 
     def __hash__(self):
         return hash(self.hal_id+self.title)
+
+    def setPhrases(self, phrases):
+        l0 = len(phrases)
+        if l0 > self.max_length:
+            m = f"Document: crop phrases from ({l0})"
+            m += f" to max number ({self.max_length})."
+            # print(m)
+            phrases = phrases[:self.max_length]
+        self.phrases = phrases
 
     def setMetadata(self, metadata):
         self.metadata = metadata
@@ -73,19 +83,19 @@ class Document:
     def setKeywords(self, keywords):
         self.keywords = keywords
 
-    def setAuthors(self, authors_full_names, authors_idhal, authors_labs):
+    def setAuthors(
+        self, authors_full_names, authors_idhal, authors_labs, authors_labids):
         self.authors = [
-            Author(n, i, l)
-            for n, i, l in zip(authors_full_names, authors_idhal, authors_labs)]
+            Author(n, i, l, il)
+            for n, i, l, il
+                in zip(
+                    authors_full_names,
+                    authors_idhal,
+                    authors_labs,
+                    authors_labids)]
 
     def setAuthLastName(self, authLastName):
         self.authLastName = authLastName
-
-    def add_phrase(self, new_phrase):
-        if len(self.phrases) >= self.max_length:
-            raise ValueError(
-                f"Number of max phrases ({self.max_length}) already attended.")
-        self.phrases.append(new_phrase)
 
     def getHalId(self):
         return self.hal_id

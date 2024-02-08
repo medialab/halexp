@@ -53,7 +53,7 @@ class Corpus:
         "Commentaire d’arrêt"
     ]
 
-    def __init__(self, index, dump_file, max_length, use_keys, filters, **kwargs):
+    def __init__(self, index, dump_file, max_length, use_keys, rank_metric, **kwargs):
         """
         dump_file[str]: path to the HAL dump in json format.
 
@@ -66,29 +66,20 @@ class Corpus:
         self.index = index
 
         self.documents = []
-        self.filters = []
-        self.max_length = -1
         self.nb_documents = 0
         self.halIds = set([])
 
         self.doc_max_length = max_length
         self.include = use_keys
+        if rank_metric not in ['mean', 'median', 'log-mean']:
+            print(
+                f"Invalid rank metric `{rank_metric}`, falling back to `mean`.")
+            rank_metric = 'mean'
+        self.rank_metric = rank_metric
 
         self.loadDump(dump_file)
         self.createDocuments()
-        self.createDocFilters(filters)
-
         self.index.createIndex(self.documents)
-
-
-
-    def createDocFilters(self, filters):
-        """
-        Each filter returs True if the document must be filtered.
-        """
-        if 'minYear' in filters:
-            fn = lambda doc: doc.publication_year < int(filters['minYear'])
-            self.filters.append(fn)
 
 
     def checkAndReplaceMissingMetadata(
@@ -115,7 +106,6 @@ class Corpus:
 
     def loadDump(self, dump_file):
 
-
         with open(dump_file) as f:
             self.halData = json.load(f)
 
@@ -132,7 +122,9 @@ class Corpus:
         self.checkAndReplaceMissingMetadata('title_s', '')
         self.checkAndReplaceMissingMetadata('subtitle_s', '')
         self.checkAndReplaceMissingMetadata(
-            'labStructName_s', replace_value='NOT FOUND')
+            'labStructName_s', replace_value='LAB NOT FOUND')
+        self.checkAndReplaceMissingMetadata(
+            'labStructId_i', replace_value='LAB ID NOT FOUND')
         self.checkAndReplaceMissingMetadata(
             'authIdHal_i', replace_nb_key='authFullName_s')
 
@@ -143,15 +135,16 @@ class Corpus:
         splited = [s for s in string.split('.') if s != '']
         splited = [s[1:] if s.startswith(' ') else s for s in splited]
         splited = [s+'.' if not s.endswith('.') else s for s in splited]
-        # from nltk.tokenize import sent_tokenize
-        # splited = self.split_into_sentences(string)
         return splited
 
     def createDocument(self, hd, phrases):
-        document = Document(phrases)
+        document = Document(phrases, self.doc_max_length)
         document.setMetadata(hd)
         document.setAuthors(
-            hd["authFullName_s"], hd["authIdHal_i"], hd["labStructName_s"])
+            hd["authFullName_s"],
+            hd["authIdHal_i"],
+            hd["labStructName_s"],
+            hd["labStructId_i"])
         document.setPublicationDate(hd["publicationDate_s"])
         document.setUri(hd["uri_s"])
         document.setHalId(hd["halId_s"])
@@ -206,22 +199,20 @@ class Corpus:
         print(
             f"Corpus: {self.nb_documents - nb_docs} docs from valid abstracts.")
 
-    def filter_document(self, doc):
-        return any([f(doc) for f in self.filters])
 
-    def filter_documents(self, results):
+    def filter_documents(self, results, filters):
         filter_docs = []
         scores = []
 
         l0 = len(results)
         for r in results:
             document = self.documents[r['corpus_id']]
-            if self.filter_document(document):
+            if any([f(document) for f in filters]):
                 continue
             filter_docs.append(document)
             scores.append(r['score'])
         print(
-            f"Corpus: Filtered {l0 - len(filter_docs)} out of {l0}.")
+            f"Corpus: filtered {l0 - len(filter_docs)} out of {l0}.")
 
         return scores, filter_docs
 
@@ -237,9 +228,23 @@ class Corpus:
 
         return sorted_results
 
-    def sortFilterAndFormatAuthorsResults(self, results):
 
-        scores, filter_docs = self.filter_documents(results)
+    def rankScores(self, scores):
+        if self.rank_metric == 'median':
+            return np.median(scores)
+        elif self.rank_metric == 'log-mean':
+            return np.log(1+len(scores)) * np.mean(scores)
+        else:  # self.rank_metric == 'mean'
+            return np.mean(scores)
+
+
+    def sortFilterAndFormatAuthorsResults(self, results, min_year=-1):
+
+        filters = []
+        if min_year > 0:
+            filters = [lambda doc: doc.publication_year < int(min_year)]
+
+        scores, filter_docs = self.filter_documents(results, filters)
 
         authors_agg_scores = dict()
         for score, doc in zip(scores, filter_docs):
@@ -253,7 +258,8 @@ class Corpus:
 
         authors_agg_scores_r = [{
             'author': a,
-            'rank_score': np.log(1+len(d['scores'])) * np.mean(d['scores']),
+            'signature': a.authSciencesPoSignature,
+            'rank_score': self.rankScores(d['scores']),
             'docs_scores': d['scores'],
             'docs_median_score': np.median(d['scores']),
             'docs_mean_score': np.mean(d['scores']),
@@ -266,9 +272,13 @@ class Corpus:
         return self.sortAndRankResults(authors_agg_scores_r)
 
 
-    def sortFilterAndFormatPapersResults(self, results):
+    def sortFilterAndFormatPapersResults(self, results, min_year=-1):
 
-        scores, filter_docs = self.filter_documents(results)
+        filters = []
+        if min_year > 0:
+            filters = [lambda doc: doc.publication_year < int(min_year)]
+
+        scores, filter_docs = self.filter_documents(results, filters)
 
         docs_agg_scores = dict()
         for score, doc in zip(scores, filter_docs):
@@ -292,11 +302,11 @@ class Corpus:
         return self.sortAndRankResults(docs_agg_scores_r)
 
 
-    def retrieveAuthors(self, query, top_k):
+    def retrieveAuthors(self, query, top_k, score_threshold, min_year=-1):
         return self.sortFilterAndFormatAuthorsResults(
-            self.index.retrieve(query, top_k))
+            self.index.retrieve(query, top_k, score_threshold), min_year)
 
-    def retrievePapers(self, query, top_k):
+    def retrievePapers(self, query, top_k, score_threshold, min_year):
         return self.sortFilterAndFormatPapersResults(
-            self.index.retrieve(query, top_k))
+            self.index.retrieve(query, top_k, score_threshold), min_year)
 

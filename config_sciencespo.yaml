@@ -1,10 +1,15 @@
 app:
-  default_nb_hits: 5
+  show: 5
+  retrieve:
+    top_k: 10000
+    score_threshold: 0.4
+    min_year: 1900
   style:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
   max_length: 5
+  rank_metric: log-mean
   use_keys:
     abstract: true
     title: true
@@ -16,16 +21,19 @@ corpus:
   query: '*:*'
   pagination_count: 10000
   fields:
-    # - sciencespoId_s
     - halId_s
     - uri_s
-    # - docType_s
-    # - language_s
     - title_s
     - subtitle_s
     - abstract_s
-    # - description_s
     - publicationDate_s
+    - authFullName_s
+    - authIdHal_i
+    - citationFull_s
+    - openAccess_bool
+    - labStructName_s
+    - labStructId_i
+    - keyword_s
     # - ePublicationDate_s
     # - conferenceStartDate_s
     # - conferenceEndDate_s
@@ -33,14 +41,10 @@ corpus:
     # - defenseDate_s
     # - authFirstName_s
     # - authLastName_s
-    - authFullName_s
-    - authIdHal_i
-    - citationFull_s
-    - openAccess_bool
-    - labStructName_s
-    - keyword_s
-  filters:
-    minYear: 2000
+    # - description_s
+    # - docType_s
+    # - language_s
+    # - sciencespoId_s
 index:
     hnswlib_space: cosine
     ef_construction: 400
@@ -48,5 +52,5 @@ index:
     num_threads: 1
     sentence_transformer_model: distiluse-base-multilingual-cased-v1
     sentence_transformer_model_dim: 512
-    min_threshold_score: 0.35
     top_k: -1
+    batch_size: 500
