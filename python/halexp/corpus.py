@@ -270,7 +270,7 @@ class Corpus:
         return self.sortAndRankResults(authors_agg_scores_r)
 
 
-    def sortFilterAndFormatPapersResults(self, results, rank_metric, min_year=-1):
+    def sortFilterAndFormatDocsResults(self, results, rank_metric, min_year=-1):
 
         filters = []
         if min_year > 0:
@@ -305,6 +305,6 @@ class Corpus:
             self.index.retrieve(query, top_k, score_threshold), rank_metric, min_year)
 
     def retrieveDocuments(self, query, top_k, score_threshold, rank_metric, min_year):
-        return self.sortFilterAndFormatPapersResults(
+        return self.sortFilterAndFormatDocsResults(
             self.index.retrieve(query, top_k, score_threshold), rank_metric, min_year)
 

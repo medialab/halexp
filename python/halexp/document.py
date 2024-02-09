@@ -110,4 +110,4 @@ class Document:
         return [a.fullName for a in self.authors]
 
     def getPhrasesForEmbedding(self):
-        return '\n\t'.join(self.phrases)
+        return ' '.join(self.phrases)
