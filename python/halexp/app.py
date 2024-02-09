@@ -85,18 +85,18 @@ def getFormHtml(imageUrl, imageWidth):
               </br>
               <div><label>{t}<input type="text" name="query" value="cartographies de l’espace public et ses dynamiques"></label></div>
               </br>
-              <div><label>{n}<input type="text" name="hits" value="5"></label></div>
+              <div><label>{n}<input type="text" name="hits" value="{params['app']['show']}"></label></div>
               </br>
-              <div><label>{y}<input type="int" name="min_year" value="2000"></label></div>
+              <div><label>{y}<input type="int" name="min_year" value="{params['app']['retrieve']['min_year']}"></label></div>
               </br>
-              <div><label>{s}<input type="float" name="score_threshold" value="0.3"></label></div>
+              <div><label>{s}<input type="float" name="score_threshold" value="{params['app']['retrieve']['score_threshold']}"></label></div>
               </br>
-              <div><label>{a}<input type="str" name="rank_metric" value="mean"></label></div>
+              <div><label>{a}<input type="str" name="rank_metric" value="{params['app']['retrieve']['rank_metric']}"></label></div>
               </br>
               <input type="submit" value="RECHERCHER">
           </form>'''
 
-def formatDocsReponseHtml(query, res, imageUrl, imageWidth):
+def formatDocsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
     html = f'''
         <img src={imageUrl} alt="" style="width:{imageWidth}px;">
         <h2>Experts search engine</h2>
@@ -105,15 +105,13 @@ def formatDocsReponseHtml(query, res, imageUrl, imageWidth):
         <p>{query}</p>
         <h3>Documents trouvés :</h3>
     '''
-    for r in res:
+    for r in res[:nb_show]:
         authors_names = r['doc'].getAuthorsFullNamesStr()
         authors_urls = r['doc'].getAuthors()
 
-        print(r['doc'])
         phrases_list = """<ol>"""
-        for phrase in r['doc'].getPhrasesForEmbedding():
+        for phrase in r['doc'].phrases:
             phrases_list += f"<li>{phrase}</li>"
-            print(phrase)
         phrases_list += """</ol>"""
 
         html += f'''
@@ -128,7 +126,7 @@ def formatDocsReponseHtml(query, res, imageUrl, imageWidth):
         '''
     return html
 
-def formatAuthorsReponseHtml(query, res, imageUrl, imageWidth):
+def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
     html = f'''
         <img src={imageUrl} alt="" style="width:{imageWidth}px;">
         <h2>Experts search engine</h2>
@@ -137,7 +135,7 @@ def formatAuthorsReponseHtml(query, res, imageUrl, imageWidth):
         <p>{query}</p>
         <h3>Auteur·ice·s trouvé·es :</h3>
     '''
-    for r in res:
+    for r in res[:nb_show]:
         author = r['author']
 
         signature = author.authSciencesPoSignature
@@ -146,8 +144,7 @@ def formatAuthorsReponseHtml(query, res, imageUrl, imageWidth):
 
         phrases_list = """<ol>"""
         for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs'])):
-            phrases_list += f'<li>{score:.2f} {doc.getPhrasesForEmbedding()} <a href="{doc.uri}">doc</a></li>'
-            print(f"App: {doc.getPhrasesForEmbedding()}")
+                phrases_list += f'<li>{score:.2f} {" ".join(doc.phrases)} <a href="{doc.uri}">doc</a></li>'
         phrases_list += """</ol>"""
 
         html += f'''
@@ -169,25 +166,37 @@ def formatAuthorsReponseHtml(query, res, imageUrl, imageWidth):
 def landing():
     return redirect("docs/form")
 
+
 @app.route('/docs/query')
-def query():
-    """
-    """
+def queryDocs():
     query = request.args.get('query')
     if query is None:
         return {'error': 'Missing `query` argument in query string'}
-    nb_hits = request.args.get('hits')
-    if nb_hits is None:
-        nb_hits = params['app']['default_nb_hits']
+    nb_show = request.args.get('hits')
+    if nb_show is None:
+        nb_show = params['app']['show']
+    score_threshold = request.args.get('score_threshold')
+    if score_threshold is None:
+        score_threshold = params['app']['retrieve']['score_threshold']
+    min_year = request.args.get('min_year')
+    if min_year is None:
+        min_year = params['app']['retrieve']['min_year']
+    rank_metric = request.args.get('rank_metric')
+    if rank_metric is None:
+        rank_metric = params['app']['retrieve']['rank_metric']
 
-    res = index.retrieve(
+    res = corpus.retrieveDocuments(
         query=query,
-        top_k=castInt(nb_hits))
+        top_k=castInt(params['app']['retrieve']['top_k']),
+        score_threshold=castFloat(score_threshold),
+        min_year=castInt(min_year),
+        rank_metric=rank_metric
+        )
 
-    return jsonify(reponses=res['json'])
+    return jsonify(reponses=[r['doc'].metadata for r in res])
 
 @app.route('/docs/form', methods=['GET', 'POST'])
-def form():
+def formDocs():
     """
     Allows both GET and POST requests.
     Displays the form if GET and process incoming data if POST.
@@ -195,22 +204,57 @@ def form():
 
     if request.method == 'POST':
         query = request.form.get('query')
-        nb_hits = request.form.get('hits')
+        nb_show = request.form.get('hits')
+        if nb_show is None:
+            nb_show = params['app']['show']
         score_threshold = request.form.get('score_threshold')
         min_year = request.form.get('min_year')
         rank_metric = request.form.get('rank_metric')
-        if nb_hits is None:
-            nb_hits = params['app']['default_nb_hits']
         res = corpus.retrieveDocuments(
             query=query,
-            top_k=castInt(nb_hits),
+            top_k=castInt(params['app']['retrieve']['top_k']),
             score_threshold=castFloat(score_threshold),
             min_year=castInt(min_year),
             rank_metric=rank_metric
             )
-        return formatDocsReponseHtml(query, res, LOGOURL, IMAGEWIDTH)
+        return formatDocsReponseHtml(query, res, castInt(nb_show), LOGOURL, IMAGEWIDTH)
 
     return getFormHtml(LOGOURL, IMAGEWIDTH)
+
+
+@app.route('/authors/query')
+def queryAuthors():
+    query = request.args.get('query')
+    if query is None:
+        return {'error': 'Missing `query` argument in query string'}
+    nb_show = request.args.get('hits')
+    if nb_show is None:
+        nb_show = params['app']['show']
+    score_threshold = request.args.get('score_threshold')
+    if score_threshold is None:
+        score_threshold = params['app']['retrieve']['score_threshold']
+    min_year = request.args.get('min_year')
+    if min_year is None:
+        min_year = params['app']['retrieve']['min_year']
+    rank_metric = request.args.get('rank_metric')
+    if rank_metric is None:
+        rank_metric = params['app']['retrieve']['rank_metric']
+
+    res = corpus.retrieveAuthors(
+        query=query,
+        top_k=castInt(params['app']['retrieve']['top_k']),
+        score_threshold=castFloat(score_threshold),
+        min_year=castInt(min_year),
+        rank_metric=rank_metric
+        )
+
+    return jsonify(reponses=[{
+        'name': r['author'].fullName,
+        'id_hal': r['author'].authIdHal,
+        'lab_id': r['author'].authIdHal,
+        'signature': r['author'].authSciencesPoSignature
+    } for r in res])
+
 
 @app.route('/authors/form', methods=['GET', 'POST'])
 def formAuthors():
@@ -221,19 +265,20 @@ def formAuthors():
 
     if request.method == 'POST':
         query = request.form.get('query')
-        nb_hits = request.form.get('hits')
+        nb_show = request.form.get('hits')
+        if nb_show is None:
+            nb_show = params['app']['show']
         score_threshold = request.form.get('score_threshold')
         min_year = request.form.get('min_year')
         rank_metric = request.form.get('rank_metric')
-        if nb_hits is None:
-            nb_hits = params['app']['default_nb_hits']
         res = corpus.retrieveAuthors(
             query=query,
-            top_k=castInt(nb_hits),
+            top_k=castInt(params['app']['retrieve']['top_k']),
             score_threshold=castFloat(score_threshold),
             rank_metric=rank_metric,
             min_year=castInt(min_year)
             )
-        return formatAuthorsReponseHtml(query, res, LOGOURL, IMAGEWIDTH)
+        return formatAuthorsReponseHtml(query, res, castInt(nb_show), LOGOURL, IMAGEWIDTH)
 
     return getFormHtml(LOGOURL, IMAGEWIDTH)
+
