@@ -62,6 +62,13 @@ def castInt(k):
     except:
         abort(400)
 
+def castFloat(k):
+    # there is probably a better way of doing this
+    try:
+        return float(k)
+    except:
+        abort(400)
+
 
 def getFormHtml(imageUrl, imageWidth):
     t = "Veuillez saisir une phrase "
@@ -79,31 +86,41 @@ def getFormHtml(imageUrl, imageWidth):
               </br>
               <div><label>{n}<input type="text" name="hits" value="5"></label></div>
               </br>
-              <div><label>{y}<input type="text" name="min_year" value="2000"></label></div>
+              <div><label>{y}<input type="int" name="min_year" value="2000"></label></div>
               </br>
-              <div><label>{s}<input type="text" name="score_threshold" value="0.3"></label></div>
+              <div><label>{s}<input type="float" name="score_threshold" value="0.3"></label></div>
               </br>
               <input type="submit" value="RECHERCHER">
           </form>'''
 
-def formatReponseHtml(query, res, imageUrl, imageWidth):
+def formatDocsReponseHtml(query, res, imageUrl, imageWidth):
     html = f'''
         <img src={imageUrl} alt="" style="width:{imageWidth}px;">
         <h2>Experts search engine</h2>
         </br>
         <h3>Votre requête :</h3>
         <p>{query}</p>
-        <h3>Resultats obtenus :</h3>
+        <h3>Documents trouvés :</h3>
     '''
+
     for r in res:
-        score = f"{r['score']:.3f}"
-        citation = str(r['citation'])
-        p = score+'   '+citation
+        rank = f"{r['rank']}"
+        nb_hits = f"{r['nb_hits']}"
+        score = f"{r['rank_score']:.3f}"
+        doc = r['doc']
         html += f'''
-            <p>{p}<p>
+            <p><b>  titre:</b>  {doc.title}<p>
+            <p><b>  date publication:</b>  {doc.publication_date}<p>
+            <p><b>  id HAL:</b>  {doc.hal_id}<p>
+            <p><b>  autheurs:</b>  {doc.getAuthorsFullNames()}<p>
+            <p><b>  rank:</b>  {rank}<p>
+            <p><b>  # hits:</b>  {nb_hits}<p>
+            <p><b>  score:</b>  {score}<p>
+            <p><b>  phrases similaires:</b> <i>{doc.getPhrasesForEmbedding()}</i><p>
+            <br>
+            <br>
         '''
     return html
-
 
 @app.route('/')
 def landing():
@@ -120,7 +137,9 @@ def query():
     if nb_hits is None:
         nb_hits = params['app']['default_nb_hits']
 
-    res = index.retrieve(query=query, top_k=castInt(nb_hits))
+    res = index.retrieve(
+        query=query,
+        top_k=castInt(nb_hits))
 
     return jsonify(reponses=res['json'])
 
@@ -130,10 +149,6 @@ def form():
     Allows both GET and POST requests.
     Displays the form if GET and process incoming data if POST.
     """
-
-    # from logzero import logger
-    # https://logzero.readthedocs.io/en/latest/
-    # logger.info("/")
 
     if request.method == 'POST':
         query = request.form.get('query')
@@ -145,10 +160,10 @@ def form():
         res = corpus.retrieveDocuments(
             query=query,
             top_k=castInt(nb_hits),
-            score_threshold=score_threshold,
-            min_year=min_year,
+            score_threshold=castFloat(score_threshold),
+            min_year=castInt(min_year),
             )
-        return formatReponseHtml(query, res['citation'], LOGOURL, IMAGEWIDTH)
+        return formatDocsReponseHtml(query, res, LOGOURL, IMAGEWIDTH)
 
     return getFormHtml(LOGOURL, IMAGEWIDTH)
 
