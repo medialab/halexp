@@ -104,19 +104,15 @@ def formatDocsReponseHtml(query, res, imageUrl, imageWidth):
     '''
 
     for r in res:
-        rank = f"{r['rank']}"
-        nb_hits = f"{r['nb_hits']}"
-        score = f"{r['rank_score']:.3f}"
-        doc = r['doc']
         html += f'''
-            <p><b>  titre:</b>  {doc.title}<p>
-            <p><b>  date publication:</b>  {doc.publication_date}<p>
-            <p><b>  id HAL:</b>  {doc.hal_id}<p>
-            <p><b>  autheurs:</b>  {doc.getAuthorsFullNames()}<p>
-            <p><b>  rank:</b>  {rank}<p>
-            <p><b>  # hits:</b>  {nb_hits}<p>
-            <p><b>  score:</b>  {score}<p>
-            <p><b>  phrases similaires:</b> <i>{doc.getPhrasesForEmbedding()}</i><p>
+            <p><b>  Document # {r['rank']}</b><p>
+            <p><b>  titre:</b>  {r['doc'].title}<p>
+            <p><b>  date publication:</b>  {r['doc'].publication_date}<p>
+            <p><b>  link HAL:</b> <a href="{r['doc'].uri}">{r['doc'].uri}</a><p>
+            <p><b>  autheurs:</b>  {r['doc'].getAuthorsFullNamesStr()}<p>
+            <p><b>  # hits:</b>  {r['nb_hits']}<p>
+            <p><b>  aggregation score:</b>  {r['rank_score']:.3f}<p>
+            <p><b>  phrases similaires:</b> <i>{r['doc'].getPhrasesForEmbedding()}</i><p>
             <br>
             <br>
         '''

@@ -103,6 +103,9 @@ class Document:
     def getAuthors(self):
         return self.authors
 
+    def getAuthorsFullNamesStr(self):
+        return ', '.join(self.getAuthorsFullNames())
+
     def getAuthorsFullNames(self):
         return [a.fullName for a in self.authors]
 
