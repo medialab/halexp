@@ -237,7 +237,7 @@ class Corpus:
                 f"Invalid rank metric `{rank_metric}`, must be one of {rms}")
 
 
-    def sortFilterAndFormatAuthorsResults(self, results, min_year=-1):
+    def sortFilterAndFormatAuthorsResults(self, results, rank_metric, min_year=-1):
 
         filters = []
         if min_year > 0:
@@ -257,7 +257,6 @@ class Corpus:
 
         authors_agg_scores_r = [{
             'author': a,
-            'signature': a.authSciencesPoSignature,
             'rank_score': self.rankScores(d['scores'], rank_metric),
             'docs_scores': d['scores'],
             'docs_median_score': np.median(d['scores']),

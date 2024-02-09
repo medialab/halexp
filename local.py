@@ -78,7 +78,7 @@ res = corpus.retrieveAuthors(query=query, **retrieveKwargs)
 for r in res[:params['app']['show']]:
     print("--------------------")
     print(f"author: {r['author']}")
-    print(f"signature: {r['signature']}")
+    print(f"signature: {r['author'].authSciencesPoSignature}")
     print(f"rank: {r['rank']}")
     print(f"rank_score: {r['rank_score']:.3f}")
     print(f"docs_median_score: {r['docs_median_score']:.3f}")
