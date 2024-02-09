@@ -53,7 +53,7 @@ class Corpus:
         "Commentaire d’arrêt"
     ]
 
-    def __init__(self, index, dump_file, max_length, use_keys, rank_metric, **kwargs):
+    def __init__(self, index, dump_file, max_length, use_keys, **kwargs):
         """
         dump_file[str]: path to the HAL dump in json format.
 
@@ -71,11 +71,6 @@ class Corpus:
 
         self.doc_max_length = max_length
         self.include = use_keys
-        if rank_metric not in ['mean', 'median', 'log-mean']:
-            print(
-                f"Invalid rank metric `{rank_metric}`, falling back to `mean`.")
-            rank_metric = 'mean'
-        self.rank_metric = rank_metric
 
         self.loadDump(dump_file)
         self.createDocuments()
@@ -229,13 +224,17 @@ class Corpus:
         return sorted_results
 
 
-    def rankScores(self, scores):
-        if self.rank_metric == 'median':
+    def rankScores(self, scores, rank_metric):
+        if rank_metric == 'median':
             return np.median(scores)
-        elif self.rank_metric == 'log-mean':
-            return np.log(1+len(scores)) * np.mean(scores)
-        else:  # self.rank_metric == 'mean'
+        elif rank_metric == 'mean':
             return np.mean(scores)
+        elif rank_metric == 'log-mean':
+            return np.log(1+len(scores)) * np.mean(scores)
+        else:
+            rms = ['mean', 'median', 'log-mean']
+            raise ValueError(
+                f"Invalid rank metric `{rank_metric}`, must be one of {rms}")
 
 
     def sortFilterAndFormatAuthorsResults(self, results, min_year=-1):
@@ -259,7 +258,7 @@ class Corpus:
         authors_agg_scores_r = [{
             'author': a,
             'signature': a.authSciencesPoSignature,
-            'rank_score': self.rankScores(d['scores']),
+            'rank_score': self.rankScores(d['scores'], rank_metric),
             'docs_scores': d['scores'],
             'docs_median_score': np.median(d['scores']),
             'docs_mean_score': np.mean(d['scores']),
@@ -272,7 +271,7 @@ class Corpus:
         return self.sortAndRankResults(authors_agg_scores_r)
 
 
-    def sortFilterAndFormatPapersResults(self, results, min_year=-1):
+    def sortFilterAndFormatPapersResults(self, results, rank_metric, min_year=-1):
 
         filters = []
         if min_year > 0:
@@ -290,7 +289,7 @@ class Corpus:
 
         docs_agg_scores_r = [{
             'rank_score': np.log(1+len(scores)) * np.mean(scores),
-            'doc_scores': scores,
+            'doc_scores': self.rankScores(scores, rank_metric),
             'doc_median_score': np.median(scores),
             'doc_mean_score': np.mean(scores),
             'doc_max_score': np.max(scores),
@@ -302,11 +301,11 @@ class Corpus:
         return self.sortAndRankResults(docs_agg_scores_r)
 
 
-    def retrieveAuthors(self, query, top_k, score_threshold, min_year=-1):
+    def retrieveAuthors(self, query, top_k, score_threshold, rank_metric, min_year=-1):
         return self.sortFilterAndFormatAuthorsResults(
-            self.index.retrieve(query, top_k, score_threshold), min_year)
+            self.index.retrieve(query, top_k, score_threshold), rank_metric, min_year)
 
-    def retrieveDocuments(self, query, top_k, score_threshold, min_year):
+    def retrieveDocuments(self, query, top_k, score_threshold, rank_metric, min_year):
         return self.sortFilterAndFormatPapersResults(
-            self.index.retrieve(query, top_k, score_threshold), min_year)
+            self.index.retrieve(query, top_k, score_threshold), rank_metric, min_year)
 

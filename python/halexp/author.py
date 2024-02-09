@@ -18,9 +18,9 @@ class Author:
         394361: 'https://sciencespo.hal.science/MEDIALAB',
         250936: 'https://sciencespo.hal.science/OFCE',
         218465: 'https://sciencespo.hal.science/LIEPP',
-        0: 'https://sciencespo.hal.science/PHD-SCPO',
-        0: 'https://sciencespo.hal.science/CSO',
-        0: 'https://sciencespo.hal.science/MAXPO',
+        1059: 'https://sciencespo.hal.science/CSO',
+        237254: 'https://sciencespo.hal.science/MAXPO',
+        # 0: 'https://sciencespo.hal.science/PHD-SCPO',
     }
 
 

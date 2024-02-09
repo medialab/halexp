@@ -76,7 +76,8 @@ def getFormHtml(imageUrl, imageWidth):
     t += "dans la langue de votre choix : "
     n = "Nombre de réponses souhaitées : "
     y = "Année minimale : "
-    s = "Score minimale : "
+    s = "Score minimale (entre 0 et 1) : "
+    a = "Métrique d'agrégation : "
     return f'''
           <form method="POST">
               <img src={imageUrl} alt="" style="width:{imageWidth}px;">
@@ -90,6 +91,8 @@ def getFormHtml(imageUrl, imageWidth):
               </br>
               <div><label>{s}<input type="float" name="score_threshold" value="0.3"></label></div>
               </br>
+              <div><label>{a}<input type="str" name="rank_metric" value="mean"></label></div>
+              </br>
               <input type="submit" value="RECHERCHER">
           </form>'''
 
@@ -102,14 +105,15 @@ def formatDocsReponseHtml(query, res, imageUrl, imageWidth):
         <p>{query}</p>
         <h3>Documents trouvés :</h3>
     '''
-
     for r in res:
+        authors_names = r['doc'].getAuthorsFullNamesStr()
+        authors_urls = r['doc'].getAuthors()
         html += f'''
             <p><b>  Document # {r['rank']}</b><p>
             <p><b>  titre:</b>  {r['doc'].title}<p>
             <p><b>  date publication:</b>  {r['doc'].publication_date}<p>
             <p><b>  link HAL:</b> <a href="{r['doc'].uri}">{r['doc'].uri}</a><p>
-            <p><b>  autheurs:</b>  {r['doc'].getAuthorsFullNamesStr()}<p>
+            <p><b>  autheurs:</b>  {authors_names}<p>
             <p><b>  # hits:</b>  {r['nb_hits']}<p>
             <p><b>  aggregation score:</b>  {r['rank_score']:.3f}<p>
             <p><b>  phrases similaires:</b> <i>{r['doc'].getPhrasesForEmbedding()}</i><p>
@@ -151,6 +155,7 @@ def form():
         nb_hits = request.form.get('hits')
         score_threshold = request.form.get('score_threshold')
         min_year = request.form.get('min_year')
+        rank_metric = request.form.get('rank_metric')
         if nb_hits is None:
             nb_hits = params['app']['default_nb_hits']
         res = corpus.retrieveDocuments(
@@ -158,6 +163,7 @@ def form():
             top_k=castInt(nb_hits),
             score_threshold=castFloat(score_threshold),
             min_year=castInt(min_year),
+            rank_metric=rank_metric
             )
         return formatDocsReponseHtml(query, res, LOGOURL, IMAGEWIDTH)
 
