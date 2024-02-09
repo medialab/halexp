@@ -8,4 +8,5 @@ scipy
 sentencepiece
 torchvision
 flask
+numpy
 
