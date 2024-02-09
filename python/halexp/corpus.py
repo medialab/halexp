@@ -306,7 +306,7 @@ class Corpus:
         return self.sortFilterAndFormatAuthorsResults(
             self.index.retrieve(query, top_k, score_threshold), min_year)
 
-    def retrievePapers(self, query, top_k, score_threshold, min_year):
+    def retrieveDocuments(self, query, top_k, score_threshold, min_year):
         return self.sortFilterAndFormatPapersResults(
             self.index.retrieve(query, top_k, score_threshold), min_year)
 

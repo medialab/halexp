@@ -1,6 +1,8 @@
 import os
 import json
 import yaml
+import pprint
+from collections import Counter
 
 from .index import Index
 from .corpus import Corpus
@@ -17,17 +19,6 @@ IMAGEWIDTH = params['app']['style']['imageWidth']
 
 app = Flask(__name__)
 
-params['index']['index_path'] = setIndexPath(params)
-index = Index(**params['index'])
-
-halCorpus = Corpus(index=index, **params['corpus'])
-
-def castInt(k):
-    # there is probably a better way of doing this
-    try:
-        return int(k)
-    except:
-        abort(400)
 
 def setIndexPath(params):
     indexPath = f"{params['corpus']['portail']}_"
@@ -42,11 +33,43 @@ def setIndexPath(params):
     indexPath = os.path.join('index', indexPath.replace('*:*', 'xxx')+'.index')
     return indexPath
 
+params['index']['index_path'] = setIndexPath(params)
+index = Index(**params['index'])
+corpus = Corpus(index=index, **params['corpus'])
+retrieveKwargs = params['app']['retrieve']
+
+# some stats
+authors = set([
+    a for doc in corpus.documents for a in doc.authors])
+a0 = len(authors)
+
+labsIds = [a.authLabIdHal for a in authors]
+li0 = len(set(labsIds))
+print(f"Local app: found {a0} different authors from {li0} labs.")
+pprint.pprint(dict(Counter(labsIds).most_common(12)))
+
+labs = [a.authSciencesPoSignature.split('/')[-1]
+    for a in authors if a.authSciencesPoSignature]
+a1 = len(labs)
+l0 = len(set(labs))
+print(f"Local app: found {a1} different authors from {l0} Sciences Po labs:")
+pprint.pprint(dict(Counter(labs)))
+
+def castInt(k):
+    # there is probably a better way of doing this
+    try:
+        return int(k)
+    except:
+        abort(400)
+
+
 def getFormHtml(imageUrl, imageWidth):
     t = "Veuillez saisir une phrase "
     t += "(sujet, projet de recherche ou d'article...) "
     t += "dans la langue de votre choix : "
     n = "Nombre de réponses souhaitées : "
+    y = "Année minimale : "
+    s = "Score minimale : "
     return f'''
           <form method="POST">
               <img src={imageUrl} alt="" style="width:{imageWidth}px;">
@@ -55,6 +78,10 @@ def getFormHtml(imageUrl, imageWidth):
               <div><label>{t}<input type="text" name="query"></label></div>
               </br>
               <div><label>{n}<input type="text" name="hits" value="5"></label></div>
+              </br>
+              <div><label>{y}<input type="text" name="min_year" value="2000"></label></div>
+              </br>
+              <div><label>{s}<input type="text" name="score_threshold" value="0.3"></label></div>
               </br>
               <input type="submit" value="RECHERCHER">
           </form>'''
@@ -80,9 +107,9 @@ def formatReponseHtml(query, res, imageUrl, imageWidth):
 
 @app.route('/')
 def landing():
-    return redirect("form")
+    return redirect("docs/form")
 
-@app.route('/authors/query')
+@app.route('/docs/query')
 def query():
     """
     """
@@ -97,7 +124,7 @@ def query():
 
     return jsonify(reponses=res['json'])
 
-@app.route('/authors/form', methods=['GET', 'POST'])
+@app.route('/docs/form', methods=['GET', 'POST'])
 def form():
     """
     Allows both GET and POST requests.
@@ -111,9 +138,16 @@ def form():
     if request.method == 'POST':
         query = request.form.get('query')
         nb_hits = request.form.get('hits')
+        score_threshold = request.form.get('score_threshold')
+        min_year = request.form.get('min_year')
         if nb_hits is None:
             nb_hits = params['app']['default_nb_hits']
-        res = corpus.retrieve(query=query, top_k=castInt(nb_hits))
+        res = corpus.retrieveDocuments(
+            query=query,
+            top_k=castInt(nb_hits),
+            score_threshold=score_threshold,
+            min_year=min_year,
+            )
         return formatReponseHtml(query, res['citation'], LOGOURL, IMAGEWIDTH)
 
     return getFormHtml(LOGOURL, IMAGEWIDTH)
