@@ -252,7 +252,8 @@ def queryAuthors():
         'name': r['author'].fullName,
         'id_hal': r['author'].authIdHal,
         'lab_id': r['author'].authIdHal,
-        'signature': r['author'].authSciencesPoSignature
+        'signature': r['author'].authSciencesPoSignature,
+        'papers': [d.metadata for d in r['docs']]
     } for r in res])
 
 
