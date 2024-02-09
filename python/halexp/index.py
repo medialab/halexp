@@ -130,7 +130,7 @@ class Index:
 
     def retrieve(self, query, top_k, score_threshold):
 
-        top_k = top_k if top_k > 0 else min(self.length, 10000)
+        # top_k = top_k if top_k > 0 else min(self.length, 10000)
 
         query_embedding = self.model.encode(query)
 

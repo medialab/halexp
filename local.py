@@ -51,16 +51,16 @@ print(f"Local app: found {a1} different authors from {l0} Sciences Po labs:")
 pprint.pprint(dict(Counter(labs)))
 
 # 1. Jean-Philippe Cointet
-# query = "cartographies de l’espace public et ses dynamiques"
+query = "cartographies de l’espace public et ses dynamiques"
 # 2. Dominique Cardon
 # query = "l'espace public numérique et les agencements algorithmiques"
 # 3. Emma Bonutti D’Agostini
 # query = "circulation du discours et de l'idéologie de l'extrême droite dans les sphères journalistiques"
 # query = 'Social media polarisation'
-query = "Moralisme progressiste et pratiques punitives dans la lutte contre les violences sexistes"
+# query = "Moralisme progressiste et pratiques punitives dans la lutte contre les violences sexistes"
 
 print(f"\n\n\n\n\nLocal app: query = `{query}`")
-res = corpus.retrievePapers(query=query, **retrieveKwargs)
+res = corpus.retrieveDocuments(query=query, **retrieveKwargs)
 for r in res[:params['app']['show']]:
     print("--------------------")
     print(f"doc: {r['doc']}")
@@ -78,7 +78,7 @@ res = corpus.retrieveAuthors(query=query, **retrieveKwargs)
 for r in res[:params['app']['show']]:
     print("--------------------")
     print(f"author: {r['author']}")
-    print(f"signature: {r['signature']}")
+    print(f"signature: {r['author'].authSciencesPoSignature}")
     print(f"rank: {r['rank']}")
     print(f"rank_score: {r['rank_score']:.3f}")
     print(f"docs_median_score: {r['docs_median_score']:.3f}")

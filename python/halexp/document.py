@@ -103,8 +103,11 @@ class Document:
     def getAuthors(self):
         return self.authors
 
+    def getAuthorsFullNamesStr(self):
+        return ', '.join(self.getAuthorsFullNames())
+
     def getAuthorsFullNames(self):
         return [a.fullName for a in self.authors]
 
     def getPhrasesForEmbedding(self):
-        return '\n\t'.join(self.phrases)
+        return ' '.join(self.phrases)

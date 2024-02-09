@@ -4,12 +4,12 @@ app:
     top_k: 1000
     score_threshold: 0.4
     min_year: 1900
+    rank_metric: median
   style:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
   max_length: 5
-  rank_metric: median
   use_keys:
     abstract: true
     title: true
