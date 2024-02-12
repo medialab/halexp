@@ -1,3 +1,5 @@
+config.env
+config.yaml
 
 *.index
 hal-productions.json

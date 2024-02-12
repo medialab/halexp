@@ -1,10 +1,10 @@
 app:
-  show: 5
+  show: 3
   retrieve:
-    top_k: 10000
+    top_k: 1000
     score_threshold: 0.4
     min_year: 1900
-    rank_metric: log-mean
+    rank_metric: median
   style:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
@@ -15,10 +15,10 @@ corpus:
     title: true
     subtitle: true
     keywords: true
-  dump_file: hal-productions_sciencespo.json
+  dump_file: hal-productions.json
   baseUrl: https://api.archives-ouvertes.fr
-  portail: sciencespo
-  query: '*:*'
+  portail: index
+  query: 'labStructId_i:394361'
   pagination_count: 10000
   fields:
     - halId_s
@@ -46,11 +46,11 @@ corpus:
     # - language_s
     # - sciencespoId_s
 index:
-    hnswlib_space: cosine
-    ef_construction: 400
-    M: 64
-    num_threads: 1
-    sentence_transformer_model: distiluse-base-multilingual-cased-v1
-    sentence_transformer_model_dim: 512
-    top_k: -1
-    batch_size: 500
+  hnswlib_space: cosine
+  ef_construction: 400
+  M: 64
+  num_threads: 1
+  sentence_transformer_model: distiluse-base-multilingual-cased-v1
+  sentence_transformer_model_dim: 512
+  top_k: -1
+  batch_size: 500

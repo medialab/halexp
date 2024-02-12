@@ -45,6 +45,7 @@ RUN pyenv install 3.10 && \
     pyenv global 3.10
 
 RUN pip install --cache-dir=/tmp/pipcache --upgrade setuptools pip && \
+    pip install --cache-dir=/tmp/pipcache pyyaml==6.0.1 && \
     pip install --cache-dir=/tmp/pipcache requests==2.31.0 && \
     pip install --cache-dir=/tmp/pipcache Flask==2.3.3 && \
     pip install --cache-dir=/tmp/pipcache Pillow==10.0.1 && \
@@ -85,11 +86,11 @@ RUN apt-get update && \
 WORKDIR /halexp
 
 COPY ./python /halexp/python
-COPY config_medialab.yaml config.yaml
+COPY config_default.yaml config_default.yaml
+COPY prepare_config.py prepare_config.py
 COPY get_dump.py get_dump.py
 COPY start.sh start.sh
 
-ENV APPCONFIG=/halexp/config.yaml
-ENV FLASK_APP=/halexp/python/halexp/app.py
+RUN chmod +x /halexp/start.sh
 
 CMD ["bash", "start.sh"]
