@@ -49,6 +49,7 @@ RUN pip install --cache-dir=/tmp/pipcache --upgrade setuptools pip && \
     pip install --cache-dir=/tmp/pipcache requests==2.31.0 && \
     pip install --cache-dir=/tmp/pipcache Flask==2.3.3 && \
     pip install --cache-dir=/tmp/pipcache gunicorn==21.2.0 && \
+    pip install --cache-dir=/tmp/pipcache gevent==23.9.1 && \
     pip install --cache-dir=/tmp/pipcache Pillow==10.0.1 && \
     pip install --cache-dir=/tmp/pipcache numpy==1.26.0 && \
     pip install --cache-dir=/tmp/pipcache scipy==1.11.2 && \
@@ -81,7 +82,7 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 ENV PYTHONIOENCODING utf-8
 
 RUN apt-get update && \
-    apt-get install -y git
+    apt-get install -y git curl
 
 WORKDIR /image
 
@@ -93,7 +94,7 @@ COPY load_models.py load_models.py
 COPY prepare.sh prepare.sh
 
 ENTRYPOINT ["bash", "prepare.sh"]
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "45", "--workers", "6", "halexp.wsgi:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "45", "--worker-tmp-dir", "/dev/shm", "--workers", "2", "--worker-class", "gevent", "--worker-connections", "1024", "halexp.wsgi:app", "--log-level", "debug"]
 
 #ENV FLASK_APP /image/halexp/wsgi.py
 #CMD ["flask", "run", "--host=0.0.0.0", "--port=80", "--debugger"]
