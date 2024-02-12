@@ -1,10 +1,9 @@
 import os
-import json
 import yaml
 import pprint
 from collections import Counter
 
-from .index import Index
+from .index import setIndexPath, Index
 from .corpus import Corpus
 
 from flask import Flask, abort, request, jsonify, redirect
@@ -16,22 +15,6 @@ with open(config_path, "r") as fh:
 
 LOGOURL = params['app']['style']['logoUrl']
 IMAGEWIDTH = params['app']['style']['imageWidth']
-
-app = Flask(__name__)
-
-
-def setIndexPath(params):
-    indexPath = f"{params['corpus']['portail']}_"
-    indexPath += f"{params['corpus']['query']}_"
-    indexPath += f"max_length_{params['corpus']['max_length']}"
-    if params['corpus']['use_keys']['title']:
-        indexPath += f"_title"
-    if params['corpus']['use_keys']['subtitle']:
-        indexPath += f"_subtitle"
-    if params['corpus']['use_keys']['keywords']:
-        indexPath += f"_keywords"
-    indexPath = os.path.join('index', indexPath.replace('*:*', 'xxx')+'.index')
-    return indexPath
 
 params['index']['index_path'] = setIndexPath(params)
 index = Index(**params['index'])
@@ -54,6 +37,7 @@ a1 = len(labs)
 l0 = len(set(labs))
 print(f"Local app: found {a1} different authors from {l0} Sciences Po labs:")
 pprint.pprint(dict(Counter(labs)))
+
 
 def castInt(k):
     # there is probably a better way of doing this
@@ -161,6 +145,7 @@ def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
 
 
 
+app = Flask(__name__)
 
 @app.route('/')
 def landing():
@@ -194,6 +179,7 @@ def queryDocs():
         )
 
     return jsonify(reponses=[r['doc'].metadata for r in res])
+
 
 @app.route('/docs/form', methods=['GET', 'POST'])
 def formDocs():
