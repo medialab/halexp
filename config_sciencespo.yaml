@@ -34,17 +34,6 @@ corpus:
     - labStructName_s
     - labStructId_i
     - keyword_s
-    # - ePublicationDate_s
-    # - conferenceStartDate_s
-    # - conferenceEndDate_s
-    # - writingDate_s
-    # - defenseDate_s
-    # - authFirstName_s
-    # - authLastName_s
-    # - description_s
-    # - docType_s
-    # - language_s
-    # - sciencespoId_s
 index:
     hnswlib_space: cosine
     ef_construction: 400
@@ -52,5 +41,4 @@ index:
     num_threads: 1
     sentence_transformer_model: distiluse-base-multilingual-cased-v1
     sentence_transformer_model_dim: 512
-    top_k: -1
     batch_size: 500
