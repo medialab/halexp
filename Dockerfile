@@ -48,6 +48,7 @@ RUN pip install --cache-dir=/tmp/pipcache --upgrade setuptools pip && \
     pip install --cache-dir=/tmp/pipcache pyyaml==6.0.1 && \
     pip install --cache-dir=/tmp/pipcache requests==2.31.0 && \
     pip install --cache-dir=/tmp/pipcache Flask==2.3.3 && \
+    pip install --cache-dir=/tmp/pipcache gunicorn==21.2.0 && \
     pip install --cache-dir=/tmp/pipcache Pillow==10.0.1 && \
     pip install --cache-dir=/tmp/pipcache numpy==1.26.0 && \
     pip install --cache-dir=/tmp/pipcache scipy==1.11.2 && \
@@ -80,17 +81,14 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 ENV PYTHONIOENCODING utf-8
 
 RUN apt-get update && \
-    apt-get install -y git && \
-    apt-get install -y nano
+    apt-get install -y git
 
 WORKDIR /halexp
 
-COPY ./python /halexp/python
+COPY ./halexp /halexp/halexp
 COPY config_default.yaml config_default.yaml
 COPY prepare_config.py prepare_config.py
 COPY get_dump.py get_dump.py
 COPY start.sh start.sh
-
-RUN chmod +x /halexp/start.sh
 
 CMD ["bash", "start.sh"]
