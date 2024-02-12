@@ -42,6 +42,11 @@ if not path.exists(configfile):
 configdata = loadConfig(configfile)
 
 env_vars = {
+    "HAL_PORTAL": {
+        "hierarchy": "corpus",
+        "key": "portail",
+        "valid_values": ["index", "sciencespo"]
+    },
     "HAL_QUERY": {
         "hierarchy": "corpus",
         "key": "query"
@@ -49,6 +54,11 @@ env_vars = {
     "DEFAULT_NB_RESULTS": {
         "hierarchy": "app",
         "key": "show",
+        "convert": strToInt
+    },
+    "RETRIEVE_MIN_YEAR": {
+        "hierarchy": "app/retrieve",
+        "key": "min_year",
         "convert": strToInt
     },
     "RETRIEVE_TOP": {
@@ -64,7 +74,7 @@ env_vars = {
     "RANK_METRIC": {
         "hierarchy": "app/retrieve",
         "key": "rank_metric",
-        "valid_values": ["median", "log-mean"]
+        "valid_values": ["mean", "median", "log-mean"]
     }
 }
 

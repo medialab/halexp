@@ -35,10 +35,10 @@ corpus:
     - labStructId_i
     - keyword_s
 index:
-    hnswlib_space: cosine
-    ef_construction: 400
-    M: 64
-    num_threads: 1
-    sentence_transformer_model: distiluse-base-multilingual-cased-v1
-    sentence_transformer_model_dim: 512
-    batch_size: 500
+  hnswlib_space: cosine
+  ef_construction: 400
+  M: 64
+  num_threads: 1
+  sentence_transformer_model: distiluse-base-multilingual-cased-v1
+  sentence_transformer_model_dim: 512
+  batch_size: 500
