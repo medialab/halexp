@@ -83,18 +83,18 @@ ENV PYTHONIOENCODING utf-8
 RUN apt-get update && \
     apt-get install -y git
 
-WORKDIR /halexp
+WORKDIR /image
 
-COPY ./halexp /halexp/halexp
+COPY ./halexp /image/halexp
 COPY config_default.yaml config_default.yaml
 COPY prepare_config.py prepare_config.py
-COPY load_models.py load_models.py
 COPY get_dump.py get_dump.py
+COPY load_models.py load_models.py
 COPY prepare.sh prepare.sh
 
 ENTRYPOINT ["bash", "prepare.sh"]
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "45", "--workers", "6", "halexp.app:app"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "45", "--workers", "6", "halexp.wsgi:app"]
 
-#ENV FLASK_APP /halexp/halexp/app.py
+#ENV FLASK_APP /image/halexp/wsgi.py
 #CMD ["flask", "run", "--host=0.0.0.0", "--port=80", "--debugger"]
 
