@@ -1,4 +1,4 @@
-```
+```yaml
 app:
   show: number of responses to show 
   retrieve:
