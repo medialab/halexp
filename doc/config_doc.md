@@ -5,7 +5,7 @@ show: number of responses to show [int]
     top_k: number of entities to retrieve from search before ranking and filtering [int]
     score_threshold: minimum score threshold to retrieve an entity [float]
     min_year: minimum year to include an entity in response [int]
-    rank_metric: metric used to rank entities in response, must be one of mean, median or log-mean[string]
+    rank_metric: metric used to rank entities in response, must be one of mean, median or log-mean [string]
 corpus:
   max_length: [int]
   use_keys:
@@ -27,7 +27,7 @@ index:
   sentence_transformer_model: model to embed entities [str]
   sentence_transformer_model_dim: number of dimension of [int]
   batch_size: batch size for embedding entities [int]
-index_path: path where to store in or load from the index [str]
+  index_path: path where to store in or load from the index [str]
 ```
 
 ## NOTES
