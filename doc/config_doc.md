@@ -1,6 +1,6 @@
 ```yaml
 app:
-show: number of responses to show 
+show: number of responses to show [int]
   retrieve:
     top_k: number of entities to retrieve from search before ranking and filtering [int]
     score_threshold: minimum score threshold to retrieve an entity [float]
