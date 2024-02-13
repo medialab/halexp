@@ -31,9 +31,9 @@ index_path: path where to store in or load from the index [str]
 ```
 
 ## NOTES
-The parameters under retrieve are the default parameters for the app, they can be changed at each query.
-The parameters max_length and use_keys under corpus are used one time at the creation of the index; they will determine the principal characteristic of the entities embedding space and cannot be changed afterwards.
-All other parameters cannot be changed after the creation of the index.
+1. The parameters under retrieve are the default parameters for the app, they can be changed at each query.
+2. The parameters max_length and use_keys under corpus are used one time at the creation of the index; they will determine the principal characteristic of the entities embedding space and cannot be changed afterwards.
+3. All other parameters cannot be changed after the creation of the index.
 
 
 
