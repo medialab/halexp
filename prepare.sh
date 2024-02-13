@@ -10,6 +10,6 @@ export APPCONFIG=$(pwd)/config.yaml
 
 # prepare models & index from dump
 mkdir -p index
-python load_models.py --config=config.yaml
+python create_index.py --config=config.yaml
 
 exec "$@"

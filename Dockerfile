@@ -90,7 +90,7 @@ COPY ./halexp /image/halexp
 COPY config_default.yaml config_default.yaml
 COPY prepare_config.py prepare_config.py
 COPY get_dump.py get_dump.py
-COPY load_models.py load_models.py
+COPY create_index.py create_index.py
 COPY prepare.sh prepare.sh
 
 ENTRYPOINT ["bash", "prepare.sh"]
