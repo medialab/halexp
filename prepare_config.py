@@ -71,6 +71,11 @@ env_vars = {
         "key": "score_threshold",
         "convert": strToFloat
     },
+    "NB_PHRASES": {
+        "hierarchy": "corpus",
+        "key": "max_length",
+        "convert": strToInt
+    },
     "RANK_METRIC": {
         "hierarchy": "app/retrieve",
         "key": "rank_metric",

@@ -9,7 +9,7 @@ from halexp import Index, Corpus
 from halexp.index import setIndexPath
 
 ap = ArgumentParser()
-ap.add_argument('--config', type=str)
+ap.add_argument('--config', required=True, type=str)
 args = ap.parse_args()
 config = args.config
 
