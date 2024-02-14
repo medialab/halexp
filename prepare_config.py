@@ -75,6 +75,26 @@ env_vars = {
         "hierarchy": "app/retrieve",
         "key": "rank_metric",
         "valid_values": ["mean", "median", "log-mean"]
+    },
+    "USE_ABSTRACT": {
+        "hierarchy": "corpus/use_keys",
+        "key": "abstract",
+        "convert": strToBool
+    },
+    "USE_TITLE": {
+        "hierarchy": "corpus/use_keys",
+        "key": "title",
+        "convert": strToBool
+    },
+    "USE_SUBTITLE": {
+        "hierarchy": "corpus/use_keys",
+        "key": "subtitle",
+        "convert": strToBool
+    },
+    "USE_KEYWORDS": {
+        "hierarchy": "corpus/use_keys",
+        "key": "keywords",
+        "convert": strToBool
     }
 }
 

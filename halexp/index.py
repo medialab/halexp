@@ -12,6 +12,8 @@ def setIndexPath(params):
     indexPath += f"max_length_{params['corpus']['max_length']}"
     if params['corpus']['use_keys']['title']:
         indexPath += f"_title"
+    if params['corpus']['use_keys']['abstract']:
+        indexPath += f"_abstract"
     if params['corpus']['use_keys']['subtitle']:
         indexPath += f"_subtitle"
     if params['corpus']['use_keys']['keywords']:
