@@ -43,7 +43,7 @@ deploy:
     entrypoint: [""]
   stage: deploy
   script:
-    - for stack in $STACKS; do echo "Deploying halexp-$stack overlay..."; kubectl apply -f k8s/overlays/$CI_COMMIT_REF_SLUG/$stack/ns.yml; kubectl apply -k k8s/overlays/$CI_COMMIT_REF_SLUG/$stack; done
+    - for stack in $STACKS; do echo "Deploying halexp-$stack overlay..."; kubectl apply -f k8s/overlays/$CI_COMMIT_REF_SLUG/$stack/ns.yml; kubectl apply -k k8s/overlays/$CI_COMMIT_REF_SLUG/$stack; kubectl -n halexp-$stack rollout restart deployment halexp; kubectl -n halexp-$stack rollout restart deployment nginx; done
   environment:
     name: $CI_COMMIT_REF_SLUG
   only:
