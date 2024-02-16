@@ -6,6 +6,22 @@ from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 
 
+def setIndexPath(params):
+    indexPath = f"{params['corpus']['portail']}_"
+    indexPath += f"{params['corpus']['query']}_"
+    indexPath += f"max_length_{params['corpus']['max_length']}"
+    if params['corpus']['use_keys']['title']:
+        indexPath += f"_title"
+    if params['corpus']['use_keys']['abstract']:
+        indexPath += f"_abstract"
+    if params['corpus']['use_keys']['subtitle']:
+        indexPath += f"_subtitle"
+    if params['corpus']['use_keys']['keywords']:
+        indexPath += f"_keywords"
+    indexPath = os.path.join('index', indexPath.replace('*:*', 'xxx')+'.index')
+    return indexPath
+
+
 class Index:
     """
     This class index the phrases of a corpus documents using a sentence bert

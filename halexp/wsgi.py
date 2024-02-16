@@ -1,10 +1,9 @@
 import os
-import json
 import yaml
 import pprint
 from collections import Counter
 
-from .index import Index
+from .index import setIndexPath, Index
 from .corpus import Corpus
 
 from flask import Flask, abort, request, jsonify, redirect
@@ -16,22 +15,6 @@ with open(config_path, "r") as fh:
 
 LOGOURL = params['app']['style']['logoUrl']
 IMAGEWIDTH = params['app']['style']['imageWidth']
-
-app = Flask(__name__)
-
-
-def setIndexPath(params):
-    indexPath = f"{params['corpus']['portail']}_"
-    indexPath += f"{params['corpus']['query']}_"
-    indexPath += f"max_length_{params['corpus']['max_length']}"
-    if params['corpus']['use_keys']['title']:
-        indexPath += f"_title"
-    if params['corpus']['use_keys']['subtitle']:
-        indexPath += f"_subtitle"
-    if params['corpus']['use_keys']['keywords']:
-        indexPath += f"_keywords"
-    indexPath = os.path.join('index', indexPath.replace('*:*', 'xxx')+'.index')
-    return indexPath
 
 params['index']['index_path'] = setIndexPath(params)
 index = Index(**params['index'])
@@ -55,6 +38,7 @@ l0 = len(set(labs))
 print(f"Local app: found {a1} different authors from {l0} Sciences Po labs:")
 pprint.pprint(dict(Counter(labs)))
 
+
 def castInt(k):
     # there is probably a better way of doing this
     try:
@@ -75,15 +59,18 @@ def getFormHtml(imageUrl, imageWidth):
     t += "(sujet, projet de recherche ou d'article...) "
     t += "dans la langue de votre choix : "
     n = "Nombre de réponses souhaitées : "
-    y = "Année minimale : "
-    s = "Score minimale (entre 0 et 1) : "
+    y = "Année de départ : "
+    s = "Score minimal (entre 0 et 1) : "
     a = "Métrique d'agrégation : "
+    mean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "mean" else ""
+    median_selected = " selected" if params['app']['retrieve']['rank_metric'] == "median" else ""
+    logmean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "log-mean" else ""
     return f'''
           <form method="POST">
               <img src={imageUrl} alt="" style="width:{imageWidth}px;">
               <h2>Experts search engine</h2>
               </br>
-              <div><label>{t}<input type="text" name="query" value="cartographies de l’espace public et ses dynamiques"></label></div>
+              <div><label>{t}<input type="text" name="query" size="70" placeholder="cartographies de l’espace public et ses dynamiques"></label></div>
               </br>
               <div><label>{n}<input type="text" name="hits" value="{params['app']['show']}"></label></div>
               </br>
@@ -91,7 +78,11 @@ def getFormHtml(imageUrl, imageWidth):
               </br>
               <div><label>{s}<input type="float" name="score_threshold" value="{params['app']['retrieve']['score_threshold']}"></label></div>
               </br>
-              <div><label>{a}<input type="str" name="rank_metric" value="{params['app']['retrieve']['rank_metric']}"></label></div>
+              <div><label>{a}<select name="rank_metric">
+                <option value="mean"{mean_selected}>moyenne</option>
+                <option value="median"{median_selected}>médiane</option>
+                <option value="log-mean"{logmean_selected}>moyenne logarithmique</option>
+              </select>
               </br>
               <input type="submit" value="RECHERCHER">
           </form>'''
@@ -161,6 +152,7 @@ def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
 
 
 
+app = Flask(__name__)
 
 @app.route('/')
 def landing():
@@ -194,6 +186,7 @@ def queryDocs():
         )
 
     return jsonify(reponses=[r['doc'].metadata for r in res])
+
 
 @app.route('/docs/form', methods=['GET', 'POST'])
 def formDocs():
@@ -252,7 +245,8 @@ def queryAuthors():
         'name': r['author'].fullName,
         'id_hal': r['author'].authIdHal,
         'lab_id': r['author'].authIdHal,
-        'signature': r['author'].authSciencesPoSignature
+        'signature': r['author'].authSciencesPoSignature,
+        'papers': [d.metadata for d in r['docs']]
     } for r in res])
 
 

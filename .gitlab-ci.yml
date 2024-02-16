@@ -3,13 +3,16 @@ image: docker:stable
 stages:
   - build
   - deploy
+  - move_ns
 
 variables:
   IMAGE_NAME: $CI_REGISTRY/scpomedialab/scpo-experts-search
+  NGINX_IMAGE_NAME: $CI_REGISTRY/scpomedialab/scpo-experts-search-nginx
 
 before_script:
   - VERSION=$(echo $CI_COMMIT_TAG | sed -nre 's/^v([0-9.]+)$/\1/p')
   - if [ -n "${VERSION}" ]; then IMAGE_TAG=${VERSION}; else IMAGE_TAG=${CI_COMMIT_REF_SLUG}; fi
+  - STACKS=$(ls "k8s/overlays/$CI_COMMIT_REF_SLUG/" 2> /dev/null || echo)
   - export KUBECONFIG=$kubeconfig_file
 
 build_image:
@@ -21,9 +24,17 @@ build_image:
   environment:
     name: $CI_COMMIT_REF_SLUG
   only:
-    - build
-    - staging
-    - prod
+    - tags
+
+build_nginx_image:
+  stage: build
+  script:
+    - docker build -t $NGINX_IMAGE_NAME:$IMAGE_TAG -f ./nginx/Dockerfile ./nginx/
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+    - docker push $NGINX_IMAGE_NAME:$IMAGE_TAG
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+  only:
     - tags
 
 deploy:
@@ -32,10 +43,21 @@ deploy:
     entrypoint: [""]
   stage: deploy
   script:
-    - NS=scpo-experts-search
-    - kubectl apply -f k8s/namespace.yml
-    - kubectl apply -k k8s/overlays/$CI_COMMIT_REF_SLUG
-    - kubectl -n ${NS} rollout restart deployment ${NS}-api
+    - for stack in $STACKS; do echo "Deploying halexp-$stack overlay..."; kubectl apply -f k8s/overlays/$CI_COMMIT_REF_SLUG/$stack/ns.yml; kubectl apply -k k8s/overlays/$CI_COMMIT_REF_SLUG/$stack; kubectl -n halexp-$stack rollout restart deployment halexp; kubectl -n halexp-$stack rollout restart deployment nginx; done
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+  only:
+   - staging
+   - prod
+
+move_ns:
+  image:
+    name: rancher/cli2:v2.4.5
+    entrypoint: [""]
+  stage: move_ns
+  script:
+    - rancher login $RANCHER_URL --token $RANCHER_TOKEN --context $RANCHER_CONTEXT
+    - for stack in $STACKS; do rancher namespaces move halexp-$stack $RANCHER_CONTEXT; done
   environment:
     name: $CI_COMMIT_REF_SLUG
   only:

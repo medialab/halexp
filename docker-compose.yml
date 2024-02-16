@@ -1,0 +1,40 @@
+version: "3"
+
+services:
+  halexp:
+    build:
+      context: .
+      args:
+      - "UID=-1000"
+      - "GID=-1000"
+      - "FLASK_DEBUG=false"
+    ports:
+    - "5000:5000"
+    env_file:
+    - "config.env"
+    restart: "unless-stopped"
+    stop_grace_period: "3s"
+    tty: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000"]
+      start_period: 1h
+      interval: 30s
+      timeout: 10s
+      retries: 4
+
+  nginx:
+    build:
+      context: ./nginx
+    restart: "unless-stopped"
+    stop_grace_period: "3s"
+    tty: true
+    environment:
+      - BACKEND_HOST: halexp
+      - BACKEND_PORT: 5000
+    ports:
+    - "8000:80"
+    links:
+      - "halexp:halexp"
+    depends_on:
+      halexp:
+        condition: service_healthy

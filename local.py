@@ -6,27 +6,15 @@ from collections import Counter
 from argparse import ArgumentParser
 
 from halexp import Index, Corpus
+from halexp.index import setIndexPath
 
 ap = ArgumentParser()
-ap.add_argument('--config', type=str)
+ap.add_argument('--config', required=True, type=str)
 args = ap.parse_args()
 config = args.config
 
 with open(config, "r") as fh:
     params = yaml.load(fh, Loader=yaml.SafeLoader)
-
-def setIndexPath(params):
-    indexPath = f"{params['corpus']['portail']}_"
-    indexPath += f"{params['corpus']['query']}_"
-    indexPath += f"max_length_{params['corpus']['max_length']}"
-    if params['corpus']['use_keys']['title']:
-        indexPath += f"_title"
-    if params['corpus']['use_keys']['subtitle']:
-        indexPath += f"_subtitle"
-    if params['corpus']['use_keys']['keywords']:
-        indexPath += f"_keywords"
-    indexPath = os.path.join('index', indexPath.replace('*:*', 'xxx')+'.index')
-    return indexPath
 
 params['index']['index_path'] = setIndexPath(params)
 index = Index(**params['index'])

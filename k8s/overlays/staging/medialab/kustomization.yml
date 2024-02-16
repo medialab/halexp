@@ -1,19 +1,22 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: scpo-experts-search
-
-namePrefix: scpo-experts-search-
+namespace: halexp-medialab
 
 bases:
-  - ../../base/
+  - ../../../base/
 
 resources:
   - ingress.yml
+
+patchesStrategicMerge:
+  - env.yml
 
 commonLabels:
   stage: staging
 
 images:
+  - name: scpomedialab/scpo-experts-search-nginx
+    newTag: 'v0-3-2-alpha'
   - name: scpomedialab/scpo-experts-search
-    newTag: 'staging'
+    newTag: 'v0-3-2-alpha'

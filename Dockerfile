@@ -45,8 +45,11 @@ RUN pyenv install 3.10 && \
     pyenv global 3.10
 
 RUN pip install --cache-dir=/tmp/pipcache --upgrade setuptools pip && \
+    pip install --cache-dir=/tmp/pipcache pyyaml==6.0.1 && \
     pip install --cache-dir=/tmp/pipcache requests==2.31.0 && \
     pip install --cache-dir=/tmp/pipcache Flask==2.3.3 && \
+    pip install --cache-dir=/tmp/pipcache gunicorn==21.2.0 && \
+    pip install --cache-dir=/tmp/pipcache gevent==23.9.1 && \
     pip install --cache-dir=/tmp/pipcache Pillow==10.0.1 && \
     pip install --cache-dir=/tmp/pipcache numpy==1.26.0 && \
     pip install --cache-dir=/tmp/pipcache scipy==1.11.2 && \
@@ -79,17 +82,20 @@ ENV PATH $PYENV_ROOT/shims:$PYENV_ROOT/bin:$PATH
 ENV PYTHONIOENCODING utf-8
 
 RUN apt-get update && \
-    apt-get install -y git && \
-    apt-get install -y nano
+    apt-get install -y git curl
 
-WORKDIR /halexp
+WORKDIR /image
 
-COPY ./python /halexp/python
-COPY config_medialab.yaml config.yaml
+COPY ./halexp /image/halexp
+COPY config_default.yaml config_default.yaml
+COPY prepare_config.py prepare_config.py
 COPY get_dump.py get_dump.py
-COPY start.sh start.sh
+COPY create_index.py create_index.py
+COPY prepare.sh prepare.sh
 
-ENV APPCONFIG=/halexp/config.yaml
-ENV FLASK_APP=/halexp/python/halexp/app.py
+ENTRYPOINT ["bash", "prepare.sh"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "45", "--worker-tmp-dir", "/dev/shm", "--workers", "2", "--worker-class", "gevent", "--worker-connections", "1024", "halexp.wsgi:app", "--log-level", "debug"]
 
-CMD ["bash", "start.sh"]
+#ENV FLASK_APP /image/halexp/wsgi.py
+#CMD ["flask", "run", "--host=0.0.0.0", "--port=80", "--debugger"]
+

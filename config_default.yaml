@@ -15,7 +15,7 @@ corpus:
     title: true
     subtitle: true
     keywords: true
-  dump_file: hal-productions_medialab.json
+  dump_file: hal-productions.json
   baseUrl: https://api.archives-ouvertes.fr
   portail: index
   query: 'labStructId_i:394361'

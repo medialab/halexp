@@ -1,18 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: api
+  name: halexp
 spec:
   replicas: 1
   selector:
     matchLabels:
-      component: api
+      component: halexp
+  strategy:
+    type: Recreate
   template:
     metadata:
       labels:
-        component: api
+        component: halexp
     spec:
       containers:
-        - name: api
+        - name: halexp
           image: scpomedialab/scpo-experts-search:latest
           imagePullPolicy: Always

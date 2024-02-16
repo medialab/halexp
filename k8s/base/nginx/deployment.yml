@@ -1,0 +1,21 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: nginx
+  template:
+    metadata:
+      labels:
+        component: nginx
+    spec:
+      containers:
+        - name: nginx
+          image: scpomedialab/scpo-experts-search-nginx:latest
+          env:
+            - name: BACKEND_PORT
+              value: '5000'
+          imagePullPolicy: Always
