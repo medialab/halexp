@@ -81,7 +81,7 @@ def getFormHtml(imageUrl, imageWidth):
               <div><label>{a}<select name="rank_metric">
                 <option value="mean"{mean_selected}>moyenne</option>
                 <option value="median"{median_selected}>médiane</option>
-                <option value="log-mean"{logmean_selected}>médiane logarithmique</option>
+                <option value="log-mean"{logmean_selected}>moyenne logarithmique</option>
               </select>
               </br>
               <input type="submit" value="RECHERCHER">
