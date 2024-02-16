@@ -11,9 +11,14 @@ bases:
 resources:
   - ingress.yml
 
+patchesStrategicMerge:
+  - env.yml
+
 commonLabels:
   stage: staging
 
 images:
+  - name: nginx
+    newTag: '1.23-alpine'
   - name: scpomedialab/scpo-experts-search
     newTag: 'staging'

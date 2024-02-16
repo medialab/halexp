@@ -1,0 +1,33 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-config
+data:
+  default.conf: |
+    server {
+        listen       80;
+        server_name  halexp.medialab;
+
+        proxy_redirect          off;
+        proxy_set_header        Host            $host;
+        proxy_set_header        X-Real-IP       $remote_addr;
+        proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+        client_body_buffer_size 128k;
+        proxy_connect_timeout   20;
+        proxy_send_timeout      60;
+        proxy_read_timeout      60;
+        proxy_buffers           32 4k;
+
+        location / {
+            proxy_pass https://halexp-halexp:5000;
+            proxy_ssl_verify off;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            add_header 'Access-Control-Allow-Origin' '*';
+        }
+      
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   /usr/share/nginx/html;
+        }
+    }

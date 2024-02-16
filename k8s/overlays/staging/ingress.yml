@@ -4,7 +4,9 @@ metadata:
   name: ingress
   annotations:
     ingress.kubernetes.io/rewrite-target: /
-    nginx.ingress.kubernetes.io/server-alias: experts-search-pprd.sciencespo.fr
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: 15
+    nginx.ingress.kubernetes.io/proxy-read-timeout: 60
+    nginx.ingress.kubernetes.io/proxy-send-timeout: 60
 spec:
   rules:
   - host: experts-search-pprd.sciencespo.fr
@@ -12,5 +14,5 @@ spec:
       paths:
         - path: /
           backend:
-            serviceName: api
+            serviceName: halexp
             servicePort: 80
