@@ -13,6 +13,6 @@ spec:
     http:
       paths:
         - path: /
-          halexp:
+          backend:
             serviceName: nginx
             servicePort: 80
