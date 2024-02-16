@@ -18,8 +18,10 @@ data:
         proxy_read_timeout      60;
         proxy_buffers           32 4k;
 
+        set $backend "http://${BACKEND_HOST}:${BACKEND_PORT}";
+
         location / {
-            proxy_pass https://halexp-halexp:5000;
+            proxy_pass $backend;
             proxy_ssl_verify off;
             proxy_set_header Upgrade $http_upgrade;
             proxy_set_header Connection "upgrade";

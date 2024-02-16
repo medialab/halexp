@@ -18,6 +18,9 @@ spec:
           imagePullPolicy: Always
           command: ["nginx"]
           args: ["-g", "daemon off;"]
+          env:
+            - name: BACKEND_PORT
+              value: '5000'
           volumeMounts:
             - name: nginx-config
               mountPath: /etc/nginx/conf.d
