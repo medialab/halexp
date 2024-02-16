@@ -6,7 +6,7 @@ namespace: halexp-medialab
 namePrefix: halexp-medialab-
 
 bases:
-  - ../../base/
+  - ../../../base/
 
 resources:
   - ingress.yml
