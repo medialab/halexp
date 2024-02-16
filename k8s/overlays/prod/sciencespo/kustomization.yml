@@ -17,6 +17,6 @@ commonLabels:
 
 images:
   - name: scpomedialab/scpo-experts-search-nginx
-    newTag: 'staging'
+    newTag: 'v0-3-2-alpha'
   - name: scpomedialab/scpo-experts-search
-    newTag: 'staging'
+    newTag: 'v0-3-2-alpha'
