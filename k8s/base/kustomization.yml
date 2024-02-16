@@ -4,7 +4,6 @@ kind: Kustomization
 resources:
   - halexp/deployment.yml
   - halexp/service.yml
-  - nginx/config-map.yml
   - nginx/deployment.yml
   - nginx/service.yml
 
