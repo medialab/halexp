@@ -111,5 +111,6 @@ for var, specs in env_vars.items():
         if specs.get("valid_values") and val not in specs["valid_values"]:
             sys.exit("Environment variable %s is set to unacceptable value, allowed options are: %s" % (var, ", ".join(specs.valid_values)))
         setConfig(specs["key"], val, configdata, specs.get("hierarchy"))
+        print("SET %s to %s" % (specs["key"], val))
 
 writeConfig(configfile, configdata)
