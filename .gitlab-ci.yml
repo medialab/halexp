@@ -35,8 +35,6 @@ build_nginx_image:
   environment:
     name: $CI_COMMIT_REF_SLUG
   only:
-    - staging
-    - prod
     - tags
 
 deploy:

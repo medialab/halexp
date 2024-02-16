@@ -3,8 +3,6 @@ kind: Kustomization
 
 namespace: halexp-medialab
 
-namePrefix: halexp-medialab-
-
 bases:
   - ../../../base/
 
