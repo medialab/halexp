@@ -12,7 +12,6 @@ spec:
       labels:
         component: nginx
     spec:
-      initContainers:
       containers:
         - name: nginx
           image: nginx:1.23-alpine
