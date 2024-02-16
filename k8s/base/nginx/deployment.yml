@@ -14,20 +14,8 @@ spec:
     spec:
       containers:
         - name: nginx
-          image: nginx:1.23-alpine
-          imagePullPolicy: Always
-          command: ["nginx"]
-          args: ["-g", "daemon off;"]
+          image: scpomedialab/scpo-experts-search-nginx:latest
           env:
             - name: BACKEND_PORT
               value: '5000'
-          volumeMounts:
-            - name: nginx-config
-              mountPath: /etc/nginx/conf.d
-      volumes:
-        - name: nginx-config
-          configMap:
-            name: nginx-config
-            items:
-              - key: "default.conf"
-                path: "default.conf"
+          imagePullPolicy: Always
