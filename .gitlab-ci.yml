@@ -7,6 +7,7 @@ stages:
 
 variables:
   IMAGE_NAME: $CI_REGISTRY/scpomedialab/scpo-experts-search
+  NGINX_IMAGE_NAME: $CI_REGISTRY/scpomedialab/scpo-experts-search-nginx
 
 before_script:
   - VERSION=$(echo $CI_COMMIT_TAG | sed -nre 's/^v([0-9.]+)$/\1/p')
@@ -23,7 +24,19 @@ build_image:
   environment:
     name: $CI_COMMIT_REF_SLUG
   only:
+    - tags
+
+build_nginx_image:
+  stage: build
+  script:
+    - docker build -t $NGINX_IMAGE_NAME:$IMAGE_TAG -f ./nginx/Dockerfile ./nginx/
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
+    - docker push $NGINX_IMAGE_NAME:$IMAGE_TAG
+  environment:
+    name: $CI_COMMIT_REF_SLUG
+  only:
     - staging
+    - prod
     - tags
 
 deploy:
