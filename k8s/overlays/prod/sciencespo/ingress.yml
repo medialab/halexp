@@ -3,16 +3,16 @@ kind: Ingress
 metadata:
   name: ingress
   annotations:
-    ingress.kubernetes.io/rewrite-target: /$2
+    ingress.kubernetes.io/rewrite-target: /
     nginx.ingress.kubernetes.io/proxy-connect-timeout: "15"
     nginx.ingress.kubernetes.io/proxy-read-timeout: "60"
     nginx.ingress.kubernetes.io/proxy-send-timeout: "60"
 spec:
   rules:
-  - host: experts-search.sciences-po.fr
+  - host: experts-search.sciencespo.fr
     http:
       paths:
-        - path: /sciencespo(/|$)(.*)
+        - path: /
           backend:
             serviceName: nginx
             servicePort: 80
