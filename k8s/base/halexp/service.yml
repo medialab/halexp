@@ -4,7 +4,7 @@ metadata:
   name: halexp
 spec:
   ports:
-    - port: 80
+    - port: 5000
   selector:
     component: halexp
   clusterIP: None
