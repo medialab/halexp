@@ -19,7 +19,7 @@ corpus:
   baseUrl: https://api.archives-ouvertes.fr
   portail: index
   query: 'labStructId_i:394361'
-  pagination_count: 1000
+  pagination_count: 500
   fields:
     - halId_s
     - uri_s

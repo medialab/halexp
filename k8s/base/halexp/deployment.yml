@@ -18,14 +18,14 @@ spec:
       - name: halexp
         image: scpomedialab/scpo-experts-search:latest
         imagePullPolicy: Always
-        startupProbe:
-          httpGet:
-            path: /
-            port: 5000
-          initialDelaySeconds: 10
-          periodSeconds: 10
-          timeoutSeconds: 5
-          failureThreshold: 500
+        #startupProbe:
+        #  httpGet:
+        #    path: /
+        #    port: 5000
+        #  initialDelaySeconds: 10
+        #  periodSeconds: 10
+        #  timeoutSeconds: 5
+        #  failureThreshold: 500
         readinessProbe:
           httpGet:
             path: /
@@ -38,7 +38,7 @@ spec:
           httpGet:
             path: /
             port: 5000
-          initialDelaySeconds: 5
-          periodSeconds: 5
+          initialDelaySeconds: 30
+          periodSeconds: 30
           timeoutSeconds: 3
-          failureThreshold: 12
+          failureThreshold: 10
