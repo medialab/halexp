@@ -51,6 +51,11 @@ env_vars = {
         "hierarchy": "corpus",
         "key": "query"
     },
+    "HAL_PAGINATION": {
+        "hierarchy": "corpus",
+        "key": "pagination_count",
+        "convert": strToInt
+    },
     "DEFAULT_NB_RESULTS": {
         "hierarchy": "app",
         "key": "show",
