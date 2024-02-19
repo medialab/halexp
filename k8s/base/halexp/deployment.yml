@@ -15,23 +15,22 @@ spec:
         component: halexp
     spec:
       containers:
-        - name: halexp
-          image: scpomedialab/scpo-experts-search:latest
-          imagePullPolicy: Always
-          terminationGracePeriodSeconds: 5
-          startupProbe:
-            httpGet:
-              path: /docs/form
-              port: 5000
-            initialDelaySeconds: 10
-            periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 500
-          livenessProbe:
-            httpGet:
-              path: /docs/form
-              port: 5000
-            initialDelaySeconds: 5
-            periodSeconds: 5
-            timeoutSeconds: 3
-            failureThreshold: 12
+      - name: halexp
+        image: scpomedialab/scpo-experts-search:latest
+        imagePullPolicy: Always
+        startupProbe:
+          httpGet:
+            path: /docs/form
+            port: 5000
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 5
+          failureThreshold: 500
+        livenessProbe:
+          httpGet:
+            path: /docs/form
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 12
