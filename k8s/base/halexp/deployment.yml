@@ -20,7 +20,7 @@ spec:
         imagePullPolicy: Always
         #startupProbe:
         #  httpGet:
-        #    path: /
+        #    path: /docs/form
         #    port: 5000
         #  initialDelaySeconds: 10
         #  periodSeconds: 10
@@ -28,17 +28,17 @@ spec:
         #  failureThreshold: 500
         readinessProbe:
           httpGet:
-            path: /
+            path: /docs/form
             port: 5000
           initialDelaySeconds: 10
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 500
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 5000
-          initialDelaySeconds: 30
-          periodSeconds: 30
-          timeoutSeconds: 3
-          failureThreshold: 10
+        #livenessProbe:
+        #  httpGet:
+        #    path: /docs/form
+        #    port: 5000
+        #  initialDelaySeconds: 30
+        #  periodSeconds: 30
+        #  timeoutSeconds: 3
+        #  failureThreshold: 10
