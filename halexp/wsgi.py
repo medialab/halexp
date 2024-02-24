@@ -101,8 +101,8 @@ def formatDocsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
         authors_urls = r['doc'].getAuthors()
 
         phrases_list = """<ol>"""
-        for phrase in r['doc'].phrases:
-            phrases_list += f"<li>{phrase}</li>"
+        for phrase, score in zip(r['doc_phrases'], r['doc_scores']):
+            phrases_list += f"<li>{score:.3f} {' '.join(phrase)}</li>"
         phrases_list += """</ol>"""
 
         html += f'''
@@ -135,7 +135,7 @@ def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
 
         phrases_list = """<ol>"""
         for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs'])):
-                phrases_list += f'<li>{score:.2f} {" ".join(doc.phrases)} <a href="{doc.uri}">doc</a></li>'
+                phrases_list += f'<li>{score:.3f} {" ".join(doc.phrases)} <a href="{doc.uri}">doc</a></li>'
         phrases_list += """</ol>"""
 
         html += f'''
