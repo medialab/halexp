@@ -281,21 +281,23 @@ class Corpus:
         docs_agg_scores = dict()
         for score, doc in zip(scores, filter_docs):
             if not doc in docs_agg_scores:
-                docs_agg_scores[doc] = []
-            docs_agg_scores[doc].append(score)
+                docs_agg_scores[doc] = {'scores': [], 'phrases': []}
+            docs_agg_scores[doc]['scores'].append(score)
+            docs_agg_scores[doc]['phrases'].append(doc.phrases)
 
         print(f"Corpus: Found {len(docs_agg_scores)} different documents.")
 
         docs_agg_scores_r = [{
-            'rank_score': np.log(1+len(scores)) * np.mean(scores),
-            'doc_scores': self.rankScores(scores, rank_metric),
-            'doc_median_score': np.median(scores),
-            'doc_mean_score': np.mean(scores),
-            'doc_max_score': np.max(scores),
-            'doc_min_score': np.min(scores),
-            'nb_hits': len(scores),
+            'rank_score': self.rankScores(values['scores'], rank_metric),
+            'doc_scores': values['scores'],
+            'doc_phrases': values['phrases'],
+            'doc_median_score': np.median(values['scores']),
+            'doc_mean_score': np.mean(values['scores']),
+            'doc_max_score': np.max(values['scores']),
+            'doc_min_score': np.min(values['scores']),
+            'nb_hits': len(values['scores']),
             'doc': doc}
-                for doc, scores in docs_agg_scores.items()]
+                for doc, values in docs_agg_scores.items()]
 
         return self.sortAndRankResults(docs_agg_scores_r)
 
