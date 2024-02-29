@@ -1,7 +1,8 @@
 image: docker:stable
 
 stages:
-  - build
+  - build_image
+  - build_nginx_image
   - deploy
   - move_ns
 
@@ -16,7 +17,7 @@ before_script:
   - export KUBECONFIG=$kubeconfig_file
 
 build_image:
-  stage: build
+  stage: build_image
   script:
     - docker build -t $IMAGE_NAME:$IMAGE_TAG -f Dockerfile .
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
@@ -27,7 +28,7 @@ build_image:
     - tags
 
 build_nginx_image:
-  stage: build
+  stage: build_nginx_image
   script:
     - docker build -t $NGINX_IMAGE_NAME:$IMAGE_TAG -f ./nginx/Dockerfile ./nginx/
     - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD"
