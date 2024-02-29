@@ -101,8 +101,8 @@ def formatDocsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
         authors_urls = r['doc'].getAuthors()
 
         phrases_list = """<ol>"""
-        for phrase in r['doc'].phrases:
-            phrases_list += f"<li>{phrase}</li>"
+        for phrase, score in zip(r['doc_phrases'], r['doc_scores']):
+            phrases_list += f"<li>{score:.3f} {' '.join(phrase)}</li>"
         phrases_list += """</ol>"""
 
         html += f'''
@@ -135,7 +135,7 @@ def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
 
         phrases_list = """<ol>"""
         for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs'])):
-                phrases_list += f'<li>{score:.2f} {" ".join(doc.phrases)} <a href="{doc.uri}">doc</a></li>'
+                phrases_list += f'<li>{score:.3f} {" ".join(doc.phrases)} <a href="{doc.uri}">doc</a></li>'
         phrases_list += """</ol>"""
 
         html += f'''
@@ -185,8 +185,9 @@ def queryDocs():
         rank_metric=rank_metric
         )
 
-    return jsonify(reponses=[r['doc'].metadata for r in res])
+    res = res[:nb_show]
 
+    return jsonify(reponses=[r['doc'].metadata for r in res])
 
 @app.route('/docs/form', methods=['GET', 'POST'])
 def formDocs():
@@ -241,13 +242,26 @@ def queryAuthors():
         rank_metric=rank_metric
         )
 
-    return jsonify(reponses=[{
-        'name': r['author'].fullName,
-        'id_hal': r['author'].authIdHal,
-        'lab_id': r['author'].authIdHal,
-        'signature': r['author'].authSciencesPoSignature,
-        'papers': [d.metadata for d in r['docs']]
-    } for r in res])
+    res = res[:nb_show]
+
+    reponses = []
+    for r in res:
+
+        tmp = {
+            'position': r['rank'] + 1,
+            'name': r['author'].fullName,
+            'id-hal': r['author'].authIdHal,
+            'lab_id': r['author'].authLab,
+            'aggregation score': r['rank_score'],
+            'signature': r['author'].authSciencesPoSignature,
+            'papers': [d.metadata for d in r['docs']]
+        }
+        tmp['phrases'] = [f'{score:.3f} {" ".join(doc.phrases)}'
+            for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs']))]
+
+        reponses.append(tmp)
+
+    return jsonify(reponses=reponses)
 
 
 @app.route('/authors/form', methods=['GET', 'POST'])
@@ -265,12 +279,13 @@ def formAuthors():
         score_threshold = request.form.get('score_threshold')
         min_year = request.form.get('min_year')
         rank_metric = request.form.get('rank_metric')
+
         res = corpus.retrieveAuthors(
             query=query,
             top_k=castInt(params['app']['retrieve']['top_k']),
             score_threshold=castFloat(score_threshold),
-            rank_metric=rank_metric,
-            min_year=castInt(min_year)
+            min_year=castInt(min_year),
+            rank_metric=rank_metric
             )
         return formatAuthorsReponseHtml(query, res, castInt(nb_show), LOGOURL, IMAGEWIDTH)
 

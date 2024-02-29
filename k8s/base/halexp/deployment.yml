@@ -8,7 +8,9 @@ spec:
     matchLabels:
       component: halexp
   strategy:
-    type: Recreate
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
   template:
     metadata:
       labels:
@@ -18,15 +20,7 @@ spec:
       - name: halexp
         image: scpomedialab/scpo-experts-search:latest
         imagePullPolicy: Always
-        #startupProbe:
-        #  httpGet:
-        #    path: /docs/form
-        #    port: 5000
-        #  initialDelaySeconds: 10
-        #  periodSeconds: 10
-        #  timeoutSeconds: 5
-        #  failureThreshold: 500
-        readinessProbe:
+        startupProbe:
           httpGet:
             path: /docs/form
             port: 5000
@@ -34,6 +28,14 @@ spec:
           periodSeconds: 10
           timeoutSeconds: 5
           failureThreshold: 500
+        readinessProbe:
+          httpGet:
+            path: /docs/form
+            port: 5000
+          initialDelaySeconds: 5
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 10
         #livenessProbe:
         #  httpGet:
         #    path: /docs/form
