@@ -35,7 +35,7 @@ docs = []
 while cursorMark != prevCursorMark:
 
     url = base_url+f"&cursorMark={cursorMark}"
-    print(url)
+    print(f"{len(docs)} documents collected yet... downloading next page at {url}")
     prevCursorMark = cursorMark
     x = requests.get(url)
     if x.ok:
