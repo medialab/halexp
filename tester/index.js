@@ -1,10 +1,11 @@
 /* TODO:
  * - reenable hits option when prod upgraded
- * - allow to see the actual full data of a single result
+ * - allow to see the actual full data of a single result as tooltip
  * - allow sorting of results
 */
 
 let configs, query_type, query, nb_results;
+let details = {};
 let queries_awaited = 0;
 
 const headers = document.getElementById("headers");
@@ -107,11 +108,19 @@ const runQueries = () => {
             text = elt.title_s;
             uri = elt.uri_s;
           }
-          document.querySelector("#config-" + i + " td:nth-child(" + (n + 2) + ")").innerHTML = '<a href="' + uri + '" target="_blank">' + text + '</a>';
+          details[i + '#' + n] = elt;
+          document.querySelector("#config-" + i + " td:nth-child(" + (n + 2) + ")").innerHTML = '<a href="' + uri + '" target="_blank">' + text + '</a>&nbsp;&nbsp;<span id="' + i + '#' + n + '" class="details">＋</span>';
         });
+        document.querySelectorAll("#config-" + i + " span").forEach(
+          (el) => el.addEventListener('mouseover', () => showTooltip(el.id))
+        );
         queries_awaited -= 1;
       })
   });
+}
+
+const showTooltip = (elid) => {
+  console.log(details[elid]);
 }
 
 document.getElementById('query_authors').addEventListener('change', prepareTable);
@@ -126,6 +135,7 @@ document.getElementById('metric_median').addEventListener('change', prepareTable
 document.getElementById('metric_log-mean').addEventListener('change', prepareTable);
 
 document.getElementById('query').addEventListener('keyup', prepareTable);
+document.getElementById('query').addEventListener('change', runQueries);
 document.getElementById('nb_results').addEventListener('change', prepareTable);
 document.getElementById('submit').addEventListener('click', runQueries);
 
