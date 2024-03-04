@@ -94,10 +94,10 @@ th, td {
   padding: 3px;
 }
 th:nth-child(2n+1), td:nth-child(2n+1) {
-  background: #AAA;
+  background: #DDD;
 }
 th:nth-child(2n+2), td:nth-child(2n+2) {
-  background: #CCC;
+  background: #EEE;
 }
 th:first-child, td:first-child {
   background: white;

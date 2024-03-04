@@ -1,4 +1,8 @@
-//import FileSaver from "file-saver";
+/* TODO:
+ * - allow to switch between querying docs and authors
+ * - allow to see the actual full data of a single result
+ * - allow sorting of results
+*/
 
 let configs;
 let nb_results;
