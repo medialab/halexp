@@ -1,13 +1,13 @@
 ```yaml
 app:
-show: number of responses to show [int]
+  show: number of responses to show [int]
   retrieve:
     top_k: number of entities to retrieve from search before ranking and filtering [int]
     score_threshold: minimum score threshold to retrieve an entity [float]
     min_year: minimum year to include an entity in response [int]
     rank_metric: metric used to rank entities in response, must be one of mean, median or log-mean [string]
 corpus:
-  max_length: [int]
+  max_length: number of phrases to consider for each block when indexing large texts [int]
   use_keys:
     abstract: whether to include or not the abstract of a HAL document in the text to be embedded [bool]
     title: whether to include or not the title of a HAL document in the text to be embedded [bool]

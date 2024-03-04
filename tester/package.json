@@ -1,0 +1,16 @@
+{
+  "name": "Results comparator for HalExp project",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "kotatsu build client index.js --production -o build/bundle.js",
+    "start": "kotatsu serve index.js --public / ./"
+  },
+  "license": "GPL v3.0",
+  "devDependencies": {
+    "async": "^3.2.2",
+    "kotatsu": "^0.22.4"
+  }
+}

@@ -1,0 +1,110 @@
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: sans-serif;
+  background-color: #DDD;
+  text-align: center;
+}
+#controls {
+  padding: 10px;
+  margin: auto;
+}
+.row {
+  margin: 3px;
+  padding: 0;
+  display: inline-flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+}
+.row.top {
+  align-items: flex-start;
+}
+.input {
+  margin: 0px 25px;
+  text-align: left;
+}
+label, textarea, input {
+  font-size: 0.8rem;
+  letter-spacing: 1px;
+}
+textarea {
+  padding: 10px;
+  max-width: 100%;
+  line-height: 1.5;
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  box-shadow: 1px 1px 1px #999;
+  font-family: monospace;
+}
+label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+}
+input {
+  font-family: monospace;
+}
+.input span, .input input[type="checkbox"] {
+  font-family: monospace;
+  margin: 12px 4px;
+  vertical-align: middle;
+}
+#nb_results {
+  width: 50px;
+}
+button {
+  padding: 6px;
+  background: white;
+  border: 2px solid grey;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: bold;
+}
+#loader {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: none;
+}
+#loader img {
+  padding: 5px;
+  opacity: 0.85;
+  width: 30px;
+}
+#results {
+  width: 95%;
+  margin: auto;
+  padding-bottom: 35px;
+}
+table {
+  width: 100%;
+  border: 1px solid dimgrey;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: 12px;
+  font-family: monospace;
+}
+tr {
+  border-bottom: 1px solid dimgrey;
+}
+th, td {
+  padding: 3px;
+}
+th:nth-child(2n+1), td:nth-child(2n+1) {
+  background: #AAA;
+}
+th:nth-child(2n+2), td:nth-child(2n+2) {
+  background: #CCC;
+}
+th:first-child, td:first-child {
+  background: white;
+  width: 400px;
+  font-weight: bold;
+}
+td:first-child {
+  text-align: left;
+  padding-left: 10px;
+}
