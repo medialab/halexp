@@ -83,22 +83,18 @@ const runQueries = () => {
 
   const query = document.getElementById("query").value;
   configs.forEach((config, i) => {
-    if (i>1) return;
     //const route = config.instance + "authors/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + config.threshold + "&min_year=" + config.min_year + "&rank_metric=" + config.metric;
     const route = config.instance + "authors/query?query=" + query + "&score_threshold=" + config.threshold + "&min_year=" + config.min_year + "&rank_metric=" + config.metric;
     console.log("Call #" + i + ": " + route)
     fetch(route)
-      .then(resp => resp.json()
-        .then(data => ({status: resp.status, body: data}))
-      )
-      .then(obj => console.log(obj));
-/*
-      .then((res) => {console.log(res.arrayBuffer()); return res.arrayBuffer()})
+      .then(resp => resp.json())
       .then((data) => {
         console.log("Result #" + i + ": ", data)
+        data.reponses.forEach((elt, n) => {
+          document.querySelector("#config-" + i + " td:nth-child(" + (n + 2) + ")").innerHTML = elt.name;
+        });
         queries_awaited -= 1;
       })
-*/
   });
 }
 
