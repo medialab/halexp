@@ -46,7 +46,7 @@ label {
 input {
   font-family: monospace;
 }
-.input span, .input input[type="checkbox"] {
+.input span, .input input[type="checkbox"], .input input[type="radio"] {
   font-family: monospace;
   margin: 12px 4px;
   vertical-align: middle;
@@ -107,4 +107,7 @@ th:first-child, td:first-child {
 td:first-child {
   text-align: left;
   padding-left: 10px;
+}
+td a, td a:visited {
+  color: black;
 }

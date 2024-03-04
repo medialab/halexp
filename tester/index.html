@@ -10,6 +10,13 @@
   <body>
     <div id="controls">
       <div class="row top">
+        <div class="input" id="query_type">
+          <label>Querying:</label>
+          <input type="radio" name="query_type" value="authors" checked />
+          <span>Authors</span><br />
+          <input type="radio" name="query_type" value="docs" />
+          <span>Papers</span><br />
+        </div>
         <div class="input">
           <label for="instances">HalExp instances:</label>
           <textarea id="instances" name="instances"
