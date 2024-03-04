@@ -15,7 +15,7 @@ const readInputs = () => {
 
   const instances = document.getElementById("instances").value
     .split('\n').map(trim)
-    .map((url) => url.replace(/^(https?:\/\/)?/, "http://").replace(/\/?$/, "/"));
+    .map((url) => url.replace(/^(https?:\/\/)?/, "https://").replace(/\/?$/, "/"));
 
   const min_years = document.getElementById("min_year").value
     .split('\n').map(trim)
