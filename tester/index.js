@@ -4,8 +4,7 @@
  * - allow sorting of results
 */
 
-let configs;
-let nb_results;
+let configs, query_type, query, nb_results;
 let queries_awaited = 0;
 
 const headers = document.getElementById("headers");
@@ -54,6 +53,8 @@ const readInputs = () => {
     )
   );
 
+  query_type = document.querySelector('input[name="query_type"]:checked').value;
+  query = document.getElementById("query").value;
   nb_results = parseInt(document.getElementById("nb_results").value);
 
   console.log(configs, nb_results);
@@ -85,10 +86,8 @@ const runQueries = () => {
   queries_awaited = configs.length;
   loader.style.display = "block";
 
-  const query_type = document.querySelector('input[name="query_type"]:checked').value;
-  const query = document.getElementById("query").value;
   configs.forEach((config, i) => {
-    //const route = config.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + config.threshold + "&min_year=" + config.min_year + "&rank_metric=" + config.metric;
+  //const route = config.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + config.threshold + "&min_year=" + config.min_year + "&rank_metric=" + config.metric;
     const route = config.instance + query_type + "/query?query=" + query + "&score_threshold=" + config.threshold + "&min_year=" + config.min_year + "&rank_metric=" + config.metric;
     console.log("Call #" + i + ": " + route)
     fetch(route)
@@ -110,6 +109,19 @@ const runQueries = () => {
       })
   });
 }
+
+document.getElementById('query_authors').addEventListener('change', prepareTable);
+document.getElementById('query_docs').addEventListener('change', prepareTable);
+
+document.getElementById('instances').addEventListener('keyup', prepareTable);
+document.getElementById('thresholds').addEventListener('keyup', prepareTable);
+document.getElementById('min_year').addEventListener('keyup', prepareTable);
+
+document.getElementById('metric_mean').addEventListener('change', prepareTable);
+document.getElementById('metric_median').addEventListener('change', prepareTable);
+document.getElementById('metric_log-mean').addEventListener('change', prepareTable);
+
+document.getElementById('nb_results').addEventListener('change', prepareTable);
 
 document.getElementById('submit').addEventListener('click', runQueries);
 

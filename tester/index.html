@@ -12,9 +12,9 @@
       <div class="row top">
         <div class="input" id="query_type">
           <label>Querying:</label>
-          <input type="radio" name="query_type" value="authors" checked />
+          <input type="radio" name="query_type" id="query_authors" value="authors" checked />
           <span>Authors</span><br />
-          <input type="radio" name="query_type" value="docs" />
+          <input type="radio" name="query_type" id="query_docs" value="docs" />
           <span>Papers</span><br />
         </div>
         <div class="input">
@@ -48,11 +48,11 @@ experts-search.sciencespo.fr/sciencespo-nokeywords</textarea>
         </div>
         <div class="input" id="metrics">
           <label>Agregation metrics:</label>
-          <input type="checkbox" name="mean" value="mean" checked />
+          <input type="checkbox" name="mean" id="metric_mean" value="mean" checked />
           <span>mean</span><br />
-          <input type="checkbox" name="median" value="median" checked />
+          <input type="checkbox" name="median" id="metric_median" value="median" checked />
           <span>median</span><br />
-          <input type="checkbox" name="log-mean" value="log-mean" checked />
+          <input type="checkbox" name="log-mean" id="metric_log-mean" value="log-mean" checked />
           <span>log-mean</span>
         </div>
       </div>
