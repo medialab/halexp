@@ -225,6 +225,7 @@ def queryAuthors():
     nb_show = request.args.get('hits')
     if nb_show is None:
         nb_show = params['app']['show']
+    nb_show = castInt(nb_show)
     score_threshold = request.args.get('score_threshold')
     if score_threshold is None:
         score_threshold = params['app']['retrieve']['score_threshold']
