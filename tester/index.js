@@ -1,5 +1,4 @@
 /* TODO:
- * - reenable hits option when prod upgraded
  * - allow to see the actual full data of a single result as tooltip
  * - allow sorting of results
 */
@@ -61,10 +60,7 @@ const readInputs = () => {
   console.log(configs, nb_results);
 }
 
-const forgeQueryUrl = (conf) => {
-  //return conf.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
-    return conf.instance + query_type + "/query?query=" + query + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
-}
+const forgeQueryUrl = (conf) => conf.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
 
 const prepareTable = () => {
   readInputs();
