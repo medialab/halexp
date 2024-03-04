@@ -60,6 +60,11 @@ const readInputs = () => {
   console.log(configs, nb_results);
 }
 
+const forgeQueryUrl = (conf) => {
+  //return conf.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
+    return conf.instance + query_type + "/query?query=" + query + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
+}
+
 const prepareTable = () => {
   readInputs();
 
@@ -72,7 +77,7 @@ const prepareTable = () => {
   let rows = [];
   for (let i = 0; i < configs.length; i++) {
     let row = [];
-    row.push(configs[i].name);
+    row.push('<a class="query_link" href=' + forgeQueryUrl(configs[i])+ ' target="_blank">🔗</a> ' + configs[i].name);
     for (let j = 0; j < nb_results; j++) {
       row.push("");
     };
@@ -87,8 +92,7 @@ const runQueries = () => {
   loader.style.display = "block";
 
   configs.forEach((config, i) => {
-  //const route = config.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + config.threshold + "&min_year=" + config.min_year + "&rank_metric=" + config.metric;
-    const route = config.instance + query_type + "/query?query=" + query + "&score_threshold=" + config.threshold + "&min_year=" + config.min_year + "&rank_metric=" + config.metric;
+    const route = forgeQueryUrl(config);
     console.log("Call #" + i + ": " + route)
     fetch(route)
       .then(resp => resp.json())
@@ -114,15 +118,15 @@ document.getElementById('query_authors').addEventListener('change', prepareTable
 document.getElementById('query_docs').addEventListener('change', prepareTable);
 
 document.getElementById('instances').addEventListener('keyup', prepareTable);
-document.getElementById('thresholds').addEventListener('keyup', prepareTable);
 document.getElementById('min_year').addEventListener('keyup', prepareTable);
+document.getElementById('thresholds').addEventListener('keyup', prepareTable);
 
 document.getElementById('metric_mean').addEventListener('change', prepareTable);
 document.getElementById('metric_median').addEventListener('change', prepareTable);
 document.getElementById('metric_log-mean').addEventListener('change', prepareTable);
 
+document.getElementById('query').addEventListener('keyup', prepareTable);
 document.getElementById('nb_results').addEventListener('change', prepareTable);
-
 document.getElementById('submit').addEventListener('click', runQueries);
 
 prepareTable();

@@ -111,3 +111,6 @@ td:first-child {
 td a, td a:visited {
   color: black;
 }
+a.query_link {
+  text-decoration: none;
+}
