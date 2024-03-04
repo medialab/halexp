@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HalExp Comparator</title>
+    <link rel="stylesheet" href="./style.css">
+  </head>
+  <body>
+    <div id="controls">
+      <div class="row top">
+        <div class="input">
+          <label for="instances">HalExp instances:</label>
+          <textarea id="instances" name="instances"
+            minlength="10"
+            wrap="off"
+            rows="6" cols="60"
+          >
+experts-search.sciencespo.fr/sciencespo
+experts-search.sciencespo.fr/sciencespo-5phrases
+experts-search.sciencespo.fr/sciencespo-nokeywords</textarea>
+        </div>
+        <div class="input">
+          <label for="min_year">Min Year:</label>
+          <textarea id="min_year" name="min_year"
+            minlength="4"
+            rows="6" cols="5"
+          >
+1990
+2010</textarea>
+        </div>
+        <div class="input">
+          <label for="thresholds">Thresholds:</label>
+          <textarea id="thresholds" name="thresholds"
+            minlength="1"
+            rows="6" cols="6"
+          >
+0.3
+0.45</textarea>
+        </div>
+        <div class="input" id="metrics">
+          <label for="metrics">Agregation metrics:</label>
+          <input type="checkbox" name="mean" value="mean" checked />
+          <span>mean</span><br />
+          <input type="checkbox" name="median" value="median" checked />
+          <span>median</span><br />
+          <input type="checkbox" name="log-mean" value="log-mean" checked />
+          <span>log-mean</span>
+        </div>
+      </div>
+      <div class="row">
+        <div class="input">
+          <label for="query">Query:</label>
+          <input type="text" id="query" name="query"
+            minlength="5"
+            autofocus
+            size="90"
+            placeholder="i.e. extrême droite en Italie"
+          />
+        </div>
+        <div class="input">
+          <label for="query">Results:</label>
+          <input type="number" id="nb_results" name="nb_results"
+            min="1" max="20"
+            value="5"
+          />
+        </div>
+        <div class="input">
+          <button id="submit" type="button">SUBMIT</button>
+        </div>
+      </div>
+    </div>
+    <div id="loader"><img src="./loader.gif"/></div>
+    <div id="results">
+      <table>
+        <thead>
+          <tr id="headers"></tr>
+        </thead>
+        <tbody id="values"></tbody>
+      </table>
+    </div>
+    <script src="build/bundle.js"></script>
+  </body>
+</html>
