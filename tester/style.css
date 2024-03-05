@@ -116,3 +116,23 @@ td span {
   font-weight: bold;
   cursor: pointer;
 }
+#tooltip {
+  display: none;
+  position: fixed;
+  top: 0;
+  right: 0;
+  background-color: #555;
+  border: 1px solid #777;
+  border-radius: 3px;
+  padding: 4px 6px;
+  font-size: 13px;
+  color: white;
+  z-index: 25;
+  min-width: 150px;
+  max-width: 350px;
+  text-align: left;
+}
+#tooltip span {
+  display: inline-block;
+}
+
