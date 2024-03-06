@@ -156,7 +156,7 @@ app = Flask(__name__)
 
 @app.route('/')
 def landing():
-    return redirect("docs/form")
+    return redirect("authors/form")
 
 
 @app.route('/docs/query')
