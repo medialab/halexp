@@ -84,15 +84,21 @@ class Document:
         self.keywords = keywords
 
     def setAuthors(
-        self, authors_full_names, authors_idhal, authors_labs, authors_labids):
-        self.authors = [
-            Author(n, i, l, il)
-            for n, i, l, il
-                in zip(
-                    authors_full_names,
-                    authors_idhal,
-                    authors_labs,
-                    authors_labids)]
+        self,
+        authors_full_names,
+        authors_idhal,
+        labStruct_ids,
+        labStruct_names
+    ):
+        assert len(authors_full_names) == len(authors_idhal)
+        assert len(authors_full_names) == len(labStruct_ids)
+        assert len(authors_full_names) == len(labStruct_names)
+        zipped = zip(
+            authors_full_names,
+            authors_idhal,
+            labStruct_ids,
+            labStruct_names)
+        self.authors = [Author(n, i, s, m) for n, i, s, m in zipped]
 
     def setAuthLastName(self, authLastName):
         self.authLastName = authLastName

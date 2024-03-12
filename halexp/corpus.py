@@ -2,6 +2,7 @@ import re
 import json
 from tqdm import tqdm
 import numpy as np
+import nltk.data
 
 from .document import Document
 
@@ -63,6 +64,8 @@ class Corpus:
         author and keywords of HAL document in the text to be embedded.
         """
 
+        self.nlp_loaded = False
+
         self.index = index
 
         self.documents = []
@@ -123,23 +126,53 @@ class Corpus:
         self.checkAndReplaceMissingMetadata(
             'authIdHal_i', replace_nb_key='authFullName_s')
 
-    def split(self, string):
+    def loadNlp(self):
+            self.sentenes_splitter =  nltk.data.load(
+                'tokenizers/punkt/english.pickle')
+
+    def split(self, text):
         """
-        Apply strategy for splitting phrases from a string.
+        Apply strategy for splitting phrases from a text.
         """
-        splited = [s for s in string.split('.') if s != '']
-        splited = [s[1:] if s.startswith(' ') else s for s in splited]
-        splited = [s+'.' if not s.endswith('.') else s for s in splited]
-        return splited
+        if not self.nlp_loaded:
+            self.loadNlp()
+
+        # splitted = [p for p in self.sentenes_splitter(text).sents]
+        splitted = self.sentenes_splitter.tokenize(text.strip())
+
+        return splitted
+
+    def getAuthPrimaryStructure(self,
+        authors_idhal,
+        authFullName_s,
+        authIdHasPrimaryStructure_fs):
+
+        authPrimaryStrucId = []
+        authPrimaryStrucName = []
+        for i, n in zip(authors_idhal, authFullName_s):
+            struc = -1
+            name = ''
+            for joint in authIdHasPrimaryStructure_fs:
+                if str(i) in joint:
+                    struc, name = joint.split('_JoinSep_')[-1].split('_FacetSep_')
+                    struc = int(struc)
+            authPrimaryStrucId.append(struc)
+            authPrimaryStrucName.append(name)
+
+        return authPrimaryStrucId, authPrimaryStrucName
 
     def createDocument(self, hd, phrases):
         document = Document(phrases, self.doc_max_length)
         document.setMetadata(hd)
+        authPrimaryStrucId, authPrimaryStrucName = self.getAuthPrimaryStructure(
+            hd["authIdHal_i"],
+            hd["authFullName_s"],
+            hd["authIdHasPrimaryStructure_fs"])
         document.setAuthors(
             hd["authFullName_s"],
             hd["authIdHal_i"],
-            hd["labStructName_s"],
-            hd["labStructId_i"])
+            authPrimaryStrucId,
+            authPrimaryStrucName)
         document.setPublicationDate(hd["publicationDate_s"])
         document.setUri(hd["uri_s"])
         document.setHalId(hd["halId_s"])
@@ -178,7 +211,8 @@ class Corpus:
         print(f"Corpus: {nb_docs} documents created from metadata.")
 
         if self.include['abstract']:
-            for hd in self.halData:
+            print("Corpus: splitting sentences from abstracts.")
+            for hd in tqdm(self.halData):
                 # create docs with phrases
                 if self.hasValidAbstracts(hd):
                     sentences = self.split(hd["abstract_s"][0])

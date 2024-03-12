@@ -5,7 +5,7 @@ class Author:
     Object representing one of the authors of a document.
     """
 
-    sciencesPoLabsMapping = {
+    sciencesPoLabsMap = {
         301587: 'https://sciencespo.hal.science',
         1846: 'https://sciencespo.hal.science/CDSP',
         94080: 'https://sciencespo.hal.science/CEE',
@@ -24,18 +24,18 @@ class Author:
     }
 
 
-    def __init__(self, full_name, id_hal, lab, lab_id):
+    def __init__(self, full_name, id_hal, labStructId_i, labStructId_name):
 
         self.fullName = full_name
         self.authIdHal = id_hal
-        self.authLab = lab
-        self.authLabIdHal = lab_id
+        self.authLab = labStructId_name
+        self.authLabIdHal = labStructId_i
         self.authSciencesPoSignature = None
-        if lab_id in self.sciencesPoLabsMapping:
-            self.authSciencesPoSignature = self.sciencesPoLabsMapping[lab_id]
+        if labStructId_i in self.sciencesPoLabsMap:
+            self.authSciencesPoSignature = self.sciencesPoLabsMap[labStructId_i]
 
     def __str__(self):
-         return f"{self.fullName} | {self.authIdHal} | {self.authLab}"
+        return f"{self.fullName} | {self.authIdHal} | {self.authLab}"
 
     def __eq__(self, other):
         return self.authIdHal == other.authIdHal
