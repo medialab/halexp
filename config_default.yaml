@@ -31,8 +31,7 @@ corpus:
     - authIdHal_i
     - citationFull_s
     - openAccess_bool
-    - labStructName_s
-    - labStructId_i
+    - authIdHasPrimaryStructure_fs
     - keyword_s
 index:
   hnswlib_space: cosine
