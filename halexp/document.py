@@ -26,7 +26,7 @@ class Document:
         self.publication_date = -1
         self.year = -1
         self.uri = ""
-        self.hal_id = ""
+        self.halId = ""
         self.authors = []
         self.keywords = []
         self.open_acces = None
@@ -37,17 +37,17 @@ class Document:
         self.setPhrases(phrases)
 
     def __str__(self):
-        _str = f"{self.title}\n\t{self.publication_date}\n\t{self.hal_id}"
+        _str = f"{self.title}\n\t{self.publication_date}\n\t{self.halId}"
         for n, a in enumerate(self.authors):
             _str += f"\n\tAuthor {n}: {a}"
         _str += f"\n\t`{self.getPhrasesForEmbedding()}`"
         return _str
 
     def __eq__(self, other):
-        return self.hal_id == other.hal_id
+        return self.halId == other.halId
 
     def __hash__(self):
-        return hash(self.hal_id+self.title)
+        return hash(self.halId+self.title)
 
     def setPhrases(self, phrases):
         l0 = len(phrases)
@@ -67,8 +67,8 @@ class Document:
     def setUri(self, uri):
         self.uri = uri
 
-    def setHalId(self, hal_id):
-        self.hal_id = hal_id
+    def setHalId(self, halId):
+        self.halId = halId
 
     def setSubtitle(self, subtitle):
         self.subtitle = subtitle
@@ -83,28 +83,21 @@ class Document:
     def setKeywords(self, keywords):
         self.keywords = keywords
 
-    def setAuthors(
-        self,
-        authors_full_names,
-        authors_idhal,
-        labStruct_ids,
-        labStruct_names
-    ):
-        assert len(authors_full_names) == len(authors_idhal)
-        assert len(authors_full_names) == len(labStruct_ids)
-        assert len(authors_full_names) == len(labStruct_names)
-        zipped = zip(
-            authors_full_names,
-            authors_idhal,
-            labStruct_ids,
-            labStruct_names)
-        self.authors = [Author(n, i, s, m) for n, i, s, m in zipped]
+    def setAuthors(self, authorsData):
+        self.authors = [
+        Author(
+            authFullNameId,
+            data['authId_i'],
+            data['authFullName_s'],
+            data['authPrimStrucId'],
+            data['authPrimStrucName'],
+                    ) for authFullNameId, data in authorsData.items()]
 
     def setAuthLastName(self, authLastName):
         self.authLastName = authLastName
 
     def getHalId(self):
-        return self.hal_id
+        return self.halId
 
     def getAuthors(self):
         return self.authors
