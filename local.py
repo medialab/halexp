@@ -26,17 +26,15 @@ authors = set([
     a for doc in corpus.documents for a in doc.authors])
 a0 = len(authors)
 
-labsIds = [a.authLabIdHal for a in authors]
-li0 = len(set(labsIds))
-print(f"Local app: found {a0} different authors from {li0} labs.")
-pprint.pprint(dict(Counter(labsIds).most_common(12)))
-
-labs = [a.authSciencesPoSignature.split('/')[-1]
-    for a in authors if a.authSciencesPoSignature]
-a1 = len(labs)
-l0 = len(set(labs))
-print(f"Local app: found {a1} different authors from {l0} Sciences Po labs:")
-pprint.pprint(dict(Counter(labs)))
+# labsIds = [a.authLabIdHal for a in authors]
+# li0 = len(set(labsIds))
+print(f"Local app: found {a0} different authors") #  from {li0} labs.")
+# pprint.pprint(dict(Counter(labsIds).most_common(12)))
+# labs = [a.authSciencesPoSignature for a in authors if a.authSciencesPoSignature]
+# a1 = len(labs)
+# l0 = len(set(labs))
+# print(f"Local app: found {a1} different authors from {l0} Sciences Po labs:")
+# pprint.pprint(dict(Counter(labs)))
 
 # 1. Jean-Philippe Cointet
 query = "cartographies de l’espace public et ses dynamiques"
