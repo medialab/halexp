@@ -24,21 +24,25 @@ class Author:
     }
 
 
-    def __init__(self, full_name, id_hal, labStructId_i, labStructId_name):
+    def __init__(self, authFullNameId, authIdHal, fullName, labStructId_is, labStructId_names):
 
-        self.fullName = full_name
-        self.authIdHal = id_hal
-        self.authLab = labStructId_name
-        self.authLabIdHal = labStructId_i
-        self.authSciencesPoSignature = None
-        if labStructId_i in self.sciencesPoLabsMap:
-            self.authSciencesPoSignature = self.sciencesPoLabsMap[labStructId_i]
+        self.authFullNameId = authFullNameId
+        self.authIdHal = authIdHal
+        self.fullName = fullName
+        self.authLabs = labStructId_names
+        self.authLabIdHals = map(int, labStructId_is)
+
+
+        self.authSciencesPoSignature = [
+            self.sciencesPoLabsMap[k] for k in self.authLabIdHals
+            if k in self.sciencesPoLabsMap]
+
 
     def __str__(self):
-        return f"{self.fullName} | {self.authIdHal} | {self.authLab}"
+        return f"{self.fullName} | {self.authIdHal} | {' AND '.join(self.authLabs)}"
 
     def __eq__(self, other):
-        return self.authIdHal == other.authIdHal
+        return self.authFullNameId == other.authFullNameId
 
     def __hash__(self):
-        return hash(self.authIdHal)
+        return hash(self.authFullNameId)
