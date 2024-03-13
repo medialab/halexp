@@ -83,22 +83,32 @@ class Corpus:
     def checkAndReplaceMissingMetadata(
         self,
         key,
-        replace_value='',
-        replace_nb_key=None):
+        drop=False,
+        replace_value=''):
 
         nb_missing = 0
-        for hd in self.halData:
+        nb_dropped = 0
+        for n, hd in enumerate(self.halData):
             if not key in hd:
-                replace = [replace_value,]
-                if replace_nb_key:
-                    replace = replace * len(hd[replace_nb_key])
-                hd[key] = replace
-                nb_missing += 1
+                if drop:
+                    self.halData.pop(n)
+                    nb_dropped += 1
+                else:
+                    replace = [replace_value,]
+                    hd[key] = replace
+                    nb_missing += 1
 
         if nb_missing > 0:
             mssg = f"Corpus: Found {nb_missing} HAL docs out of "
             mssg += f"{len(self.halData)} "
             mssg += f"({100 * nb_missing / len(self.halData):.2f}%) "
+            mssg += f"without `{key}` entry."
+            print(mssg)
+
+        if nb_dropped > 0:
+            mssg = f"Corpus: Dropped {nb_dropped} HAL docs out of "
+            mssg += f"{len(self.halData)} "
+            mssg += f"({100 * nb_dropped / len(self.halData):.2f}%) "
             mssg += f"without `{key}` entry."
             print(mssg)
 
@@ -108,8 +118,8 @@ class Corpus:
             self.halData = json.load(f)
 
         # check if duplicated hal ids
-        nb_unique_halId_s = len(set([hd['halId_s'] for hd in self.halData]))
-        if not nb_unique_halId_s == len(self.halData):
+        nb_unique_halId = len(set([hd['halId_s'] for hd in self.halData]))
+        if not nb_unique_halId == len(self.halData):
             raise ValueError(
                 f"There are documents in dump with repeated 'halId_s' key.")
 
@@ -120,15 +130,12 @@ class Corpus:
         self.checkAndReplaceMissingMetadata('title_s', '')
         self.checkAndReplaceMissingMetadata('subtitle_s', '')
         self.checkAndReplaceMissingMetadata(
-            'labStructName_s', replace_value='LAB NOT FOUND')
-        self.checkAndReplaceMissingMetadata(
-            'labStructId_i', replace_value='LAB ID NOT FOUND')
-        self.checkAndReplaceMissingMetadata(
-            'authIdHal_i', replace_nb_key='authFullName_s')
+            'authIdHasPrimaryStructure_fs', drop=True)
 
     def loadNlp(self):
             self.sentenes_splitter =  nltk.data.load(
                 'tokenizers/punkt/english.pickle')
+            self.nlp_loaded = True
 
     def split(self, text):
         """
@@ -137,42 +144,64 @@ class Corpus:
         if not self.nlp_loaded:
             self.loadNlp()
 
-        # splitted = [p for p in self.sentenes_splitter(text).sents]
         splitted = self.sentenes_splitter.tokenize(text.strip())
 
         return splitted
 
-    def getAuthPrimaryStructure(self,
-        authors_idhal,
-        authFullName_s,
-        authIdHasPrimaryStructure_fs):
+    def parseStructure(self, authFullNameId_fs, authIdHasPrimaryStructure_fs):
+        """
+        Parse author metadata.
 
-        authPrimaryStrucId = []
-        authPrimaryStrucName = []
-        for i, n in zip(authors_idhal, authFullName_s):
-            struc = -1
-            name = ''
-            for joint in authIdHasPrimaryStructure_fs:
-                if str(i) in joint:
-                    struc, name = joint.split('_JoinSep_')[-1].split('_FacetSep_')
-                    struc = int(struc)
-            authPrimaryStrucId.append(struc)
-            authPrimaryStrucName.append(name)
+        Each entry in authIdHasPrimaryStructure_fs is a string containing :
 
-        return authPrimaryStrucId, authPrimaryStrucName
+        Internal identifier + _FacetSep_ + Full name + _JoinSep_ +
+        Identifiant HAL de structure primaire + _FacetSep_ +
+        Nom de la structure primaire
+        """
+
+        # build author data dict
+        authorsData = {
+            authFullNameId: {
+                'authId_i': -1,
+                'authFullName_s': "Not found",
+                'authPrimStrucId': [],
+                'authPrimStrucName': [],
+            }
+            for authFullNameId in authFullNameId_fs
+        }
+
+        for joint in authIdHasPrimaryStructure_fs:
+
+            # get data
+            f1, f2 = joint.split('_JoinSep_')
+            internalId, fullName = f1.split('_FacetSep_')
+            primaryStrucId, primaryStrucName = f2.split('_FacetSep_')
+            _, authId_i = internalId.split('-')
+
+            # reconstruct author id (full name+ hal id)
+            authFullNameId = '_FacetSep_'.join([fullName, authId_i])
+
+            # fill author data dict
+            authorsData[authFullNameId]['authId_i'] = authId_i
+            authorsData[authFullNameId]['authFullName_s'] = fullName
+            authorsData[authFullNameId]['authPrimStrucId'].append(
+                primaryStrucId)
+            authorsData[authFullNameId]['authPrimStrucName'].append(
+                primaryStrucName)
+
+        # drop authors without hal id
+        authorsData = {
+            k: v for k, v in authorsData.items() if not v['authId_i'] == -1}
+
+        return authorsData
 
     def createDocument(self, hd, phrases):
+
         document = Document(phrases, self.doc_max_length)
         document.setMetadata(hd)
-        authPrimaryStrucId, authPrimaryStrucName = self.getAuthPrimaryStructure(
-            hd["authIdHal_i"],
-            hd["authFullName_s"],
-            hd["authIdHasPrimaryStructure_fs"])
-        document.setAuthors(
-            hd["authFullName_s"],
-            hd["authIdHal_i"],
-            authPrimaryStrucId,
-            authPrimaryStrucName)
+        document.setAuthors(self.parseStructure(
+            hd["authFullNameId_fs"],
+            hd["authIdHasPrimaryStructure_fs"]))
         document.setPublicationDate(hd["publicationDate_s"])
         document.setUri(hd["uri_s"])
         document.setHalId(hd["halId_s"])
@@ -192,20 +221,27 @@ class Corpus:
                 return False
         return True
 
+
+    def addDocument(self, document):
+        if document is not None:
+            self.documents.append(document)
+
     def createDocuments(self):
         """
         Create documents from dump data
         """
+
         for hd in self.halData:
+
             # create docs from metadata
             if self.include['keywords'] and hd['keyword_s'][0]:
-                self.documents.append(
+                self.addDocument(
                     self.createDocument(hd, [' '.join(hd['keyword_s'])]))
             if self.include['title'] and hd['title_s']:
-                self.documents.append(
+                self.addDocument(
                     self.createDocument(hd, hd['title_s']))
             if self.include['subtitle'] and hd['subtitle_s'][0]:
-                self.documents.append(
+                self.addDocument(
                     self.createDocument(hd, hd['subtitle_s']))
         nb_docs = len(self.documents)
         print(f"Corpus: {nb_docs} documents created from metadata.")
@@ -216,14 +252,13 @@ class Corpus:
                 # create docs with phrases
                 if self.hasValidAbstracts(hd):
                     sentences = self.split(hd["abstract_s"][0])
-                    n = 0
-                    while n < len(sentences)-1:
-                        r = min(self.doc_max_length, len(sentences)-n)
-                        phrases = [sentences[j] for j in range(r)]
-                        n += r
-                        # create doc with phrases
-                        document = self.createDocument(hd, phrases)
-                        self.documents.append(document)
+                    na = 0
+                    nb = 0
+                    while na < len(sentences)-1:
+                        nb += min(self.doc_max_length, len(sentences)-nb)
+                        document = self.createDocument(hd, sentences[na: nb])
+                        na = nb
+                        self.addDocument(document)
         self.nb_documents = len(self.documents)
         print(
             f"Corpus: {self.nb_documents - nb_docs} docs from valid abstracts.")
@@ -338,9 +373,12 @@ class Corpus:
 
     def retrieveAuthors(self, query, top_k, score_threshold, rank_metric, min_year=-1):
         return self.sortFilterAndFormatAuthorsResults(
-            self.index.retrieve(query, top_k, score_threshold), rank_metric, min_year)
+            self.index.retrieve(query, top_k, score_threshold),
+            rank_metric,
+            min_year)
 
     def retrieveDocuments(self, query, top_k, score_threshold, rank_metric, min_year):
         return self.sortFilterAndFormatDocsResults(
-            self.index.retrieve(query, top_k, score_threshold), rank_metric, min_year)
-
+            self.index.retrieve(query, top_k, score_threshold),
+            rank_metric,
+            min_year)
