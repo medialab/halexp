@@ -23,8 +23,7 @@
             minlength="10"
             wrap="off"
             rows="6" cols="60"
-          >
-experts-search.sciencespo.fr/sciencespo
+          >experts-search.sciencespo.fr/sciencespo
 experts-search.sciencespo.fr/sciencespo-5phrases
 experts-search.sciencespo.fr/sciencespo-nokeywords</textarea>
         </div>
@@ -33,24 +32,23 @@ experts-search.sciencespo.fr/sciencespo-nokeywords</textarea>
           <textarea id="min_year" name="min_year"
             minlength="4"
             rows="6" cols="5"
-          >
-1990
-2010</textarea>
+          >2005</textarea>
         </div>
         <div class="input">
           <label for="thresholds">Thresholds:</label>
           <textarea id="thresholds" name="thresholds"
             minlength="1"
             rows="6" cols="6"
-          >
-0.3
-0.45</textarea>
+          >0.3
+0.4
+0.5
+0.6</textarea>
         </div>
         <div class="input" id="metrics">
-          <label>Agregation metrics:</label>
-          <input type="checkbox" name="mean" id="metric_mean" value="mean" checked />
+          <label>Aggregation metrics:</label>
+          <input type="checkbox" name="mean" id="metric_mean" value="mean" />
           <span>mean</span><br />
-          <input type="checkbox" name="median" id="metric_median" value="median" checked />
+          <input type="checkbox" name="median" id="metric_median" value="median" />
           <span>median</span><br />
           <input type="checkbox" name="log-mean" id="metric_log-mean" value="log-mean" checked />
           <span>log-mean</span>
@@ -62,7 +60,7 @@ experts-search.sciencespo.fr/sciencespo-nokeywords</textarea>
           <input type="text" id="query" name="query"
             minlength="5"
             autofocus
-            size="90"
+            size="110"
             placeholder="i.e. extrême droite en Italie"
           />
         </div>
@@ -87,6 +85,7 @@ experts-search.sciencespo.fr/sciencespo-nokeywords</textarea>
         <tbody id="values"></tbody>
       </table>
     </div>
+    <div id="tooltip"></div>
     <script src="build/bundle.js"></script>
   </body>
 </html>

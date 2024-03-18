@@ -1,15 +1,15 @@
 /* TODO:
- * - reenable hits option when prod upgraded
- * - allow to see the actual full data of a single result
  * - allow sorting of results
 */
 
 let configs, query_type, query, nb_results;
+let details = {};
 let queries_awaited = 0;
 
 const headers = document.getElementById("headers");
 const results = document.getElementById("results");
 const loader = document.getElementById("loader");
+const tooltip = document.getElementById("tooltip");
 
 const trim = (text) => text.trim();
 
@@ -60,10 +60,7 @@ const readInputs = () => {
   console.log(configs, nb_results);
 }
 
-const forgeQueryUrl = (conf) => {
-  //return conf.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
-    return conf.instance + query_type + "/query?query=" + query + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
-}
+const forgeQueryUrl = (conf) => conf.instance + query_type + "/query?query=" + query + "&hits=" + nb_results + "&score_threshold=" + conf.threshold + "&min_year=" + conf.min_year + "&rank_metric=" + conf.metric;
 
 const prepareTable = () => {
   readInputs();
@@ -107,11 +104,36 @@ const runQueries = () => {
             text = elt.title_s;
             uri = elt.uri_s;
           }
-          document.querySelector("#config-" + i + " td:nth-child(" + (n + 2) + ")").innerHTML = '<a href="' + uri + '" target="_blank">' + text + '</a>';
+          details[i + '#' + n] = elt;
+          document.querySelector("#config-" + i + " td:nth-child(" + (n + 2) + ")").innerHTML = '<a href="' + uri + '" target="_blank">' + text + '</a>&nbsp;&nbsp;<span id="' + i + '#' + n + '" class="details">＋</span>';
+        });
+        document.querySelectorAll("#config-" + i + " span").forEach((el) => {
+          el.addEventListener('mouseenter', () => showTooltip(el.id));
+          el.addEventListener('mouseleave', () => clearTooltip());
         });
         queries_awaited -= 1;
       })
   });
+}
+
+const showTooltip = (elid) => {
+  const dat = details[elid];
+  if (query_type === "authors")
+    tooltip.innerHTML = "<p><b>Score:</b> " + dat["aggregation score"] + "</p>" +
+      "<p><b>Labo:</b> " + dat.lab_id + "</p>" +
+      "<p><b>Matches (" + dat.phrases.length + "):</b> <ul><li>" + [...new Set(dat.phrases)].join("</li><li>") + "</li></ul></p>" +
+      "<p><b>Papers (" + dat.papers.length + "):</b> <ul><li>" + [...new Set(dat.papers.map((p) => p.title_s[0]))].join("</li><li>") + "</li></ul></p>";
+  else tooltip.innerHTML = "<p>" + dat.citationFull_s + "</p>" +
+    "<p><b>Subtitle:</b> " + dat.subtitle_s[0] + "</p>" +
+    "<p><b>Abstract:</b> " + dat.abstract_s[0] + "</p>" +
+    "<p><b>Keywords:</b> <ul><li>" + dat.keyword_s.join("</li><li>") + "</li></ul></p>" +
+    "<p><b>Year:</b> " + dat.publicationDate_s + "</p>";
+  tooltip.style.display = "block";
+  console.log(details[elid]);
+}
+const clearTooltip = () => {
+  tooltip.innerHTML = "";
+  tooltip.style.display = "none";
 }
 
 document.getElementById('query_authors').addEventListener('change', prepareTable);
@@ -126,6 +148,7 @@ document.getElementById('metric_median').addEventListener('change', prepareTable
 document.getElementById('metric_log-mean').addEventListener('change', prepareTable);
 
 document.getElementById('query').addEventListener('keyup', prepareTable);
+document.getElementById('query').addEventListener('change', runQueries);
 document.getElementById('nb_results').addEventListener('change', prepareTable);
 document.getElementById('submit').addEventListener('click', runQueries);
 
