@@ -25,18 +25,7 @@ retrieveKwargs = params['app']['retrieve']
 authors = set([
     a for doc in corpus.documents for a in doc.authors])
 a0 = len(authors)
-
-labsIds = [a.authLabIdHal for a in authors]
-li0 = len(set(labsIds))
-print(f"Local app: found {a0} different authors from {li0} labs.")
-pprint.pprint(dict(Counter(labsIds).most_common(12)))
-
-labs = [a.authSciencesPoSignature.split('/')[-1]
-    for a in authors if a.authSciencesPoSignature]
-a1 = len(labs)
-l0 = len(set(labs))
-print(f"Local app: found {a1} different authors from {l0} Sciences Po labs:")
-pprint.pprint(dict(Counter(labs)))
+print(f"Local app: found {a0} different authors.")
 
 
 def castInt(k):
@@ -131,7 +120,7 @@ def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
 
         signature = author.authSciencesPoSignature
         if not signature:
-            signature = ""
+            signature = [""]
 
         phrases_list = """<ol>"""
         for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs'])):
@@ -142,12 +131,13 @@ def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
             <p><b>  auteur·ice # {r['rank'] + 1}</b><p>
             <p><b>  nom :</b>  {r['author'].fullName}<p>
             <p><b>  id HAL :</b>  {r['author'].authIdHal}<p>
-            <p><b>  laboratoire :</b>  {r['author'].authLab}<p>
-            <p><b>  signature : <a href="{signature}">{signature}</a></b><p>
+            <p><b>  laboratoires :</b>  {' AND '.join(r['author'].authLabs)}<p>
+            <p><b>  signature : <a href="{signature[0]}">{signature[0]}</a></b><p>
             <p><b>  aggregation score :</b>  {r['rank_score']:.3f}<p>
             <p><b>  phrases similaires :</b> <i>{phrases_list}</i><p>
             <br>
         '''
+
     return html
 
 
