@@ -10,6 +10,7 @@ export APPCONFIG=$(pwd)/config.yaml
 
 # prepare models & index from dump
 mkdir -p index
+python -c "import nltk; nltk.download('punkt')"
 python create_index.py --config=config.yaml || (echo "ERROR while building index" && exit)
 
 exec "$@"
