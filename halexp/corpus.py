@@ -133,9 +133,9 @@ class Corpus:
             'authIdHasPrimaryStructure_fs', drop=True)
 
     def loadNlp(self):
-            self.sentenes_splitter =  nltk.data.load(
-                'tokenizers/punkt/english.pickle')
-            self.nlp_loaded = True
+        self.sentenes_splitter =  nltk.data.load(
+            'tokenizers/punkt/english.pickle')
+        self.nlp_loaded = True
 
     def split(self, text):
         """
