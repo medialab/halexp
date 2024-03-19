@@ -1,20 +1,20 @@
 app:
-  show: 3
+  show: 5
   retrieve:
     top_k: 1000
-    score_threshold: 0.4
+    score_threshold: 0.2
     min_year: 1900
-    rank_metric: median
+    rank_metric: log-mean
   style:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
-  max_length: 5
+  max_length: 1
   use_keys:
     abstract: true
     title: true
-    subtitle: true
-    keywords: true
+    subtitle: false
+    keywords: false
   dump_file: hal-productions.json
   baseUrl: https://api.archives-ouvertes.fr
   portail: index
@@ -27,12 +27,10 @@ corpus:
     - subtitle_s
     - abstract_s
     - publicationDate_s
-    - authFullName_s
-    - authIdHal_i
     - citationFull_s
     - openAccess_bool
-    - labStructName_s
-    - labStructId_i
+    - authIdHasPrimaryStructure_fs
+    - authFullNameId_fs
     - keyword_s
 index:
   hnswlib_space: cosine

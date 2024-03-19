@@ -61,6 +61,7 @@ RUN pip install --cache-dir=/tmp/pipcache --upgrade setuptools pip && \
     pip install --cache-dir=/tmp/pipcache --no-dependencies torchvision==0.15.2 -f https://download.pytorch.org/whl/torch_stable.html && \
     pip install --cache-dir=/tmp/pipcache 'transformers[torch-cpu]'==4.37.2 && \
     pip install --cache-dir=/tmp/pipcache --no-dependencies sentence-transformers==2.2.2 && \
+    pip install --cache-dir=/tmp/pipcache nltk==3.8.1 && \
     pip cache purge && \
     rm -r /tmp/pipcache
 
