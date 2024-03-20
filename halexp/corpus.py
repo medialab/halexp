@@ -300,8 +300,12 @@ class Corpus:
             return np.mean(scores)
         elif rank_metric == 'log-mean':
             return np.log(1+len(scores)) * np.mean(scores)
+        elif rank_metric == 'sigmoid-mean':
+            return  1/(1+np.exp(-0.5 * len(scores))) * np.mean(scores)
+        elif rank_metric == 'sigmoid':
+            return np.mean(1/(1+np.exp(-0.5 * len(scores))) * np.array(scores))
         else:
-            rms = ['mean', 'median', 'log-mean']
+            rms = ['mean', 'median', 'log-mean', 'sigmoid-mean', 'sigmoid']
             raise ValueError(
                 f"Invalid rank metric `{rank_metric}`, must be one of {rms}")
 
@@ -355,7 +359,6 @@ class Corpus:
             docs_agg_scores[doc]['phrases'].append(doc.phrases)
 
         print(f"Corpus: Found {len(docs_agg_scores)} different documents.")
-
         docs_agg_scores_r = [{
             'rank_score': self.rankScores(values['scores'], rank_metric),
             'doc_scores': values['scores'],

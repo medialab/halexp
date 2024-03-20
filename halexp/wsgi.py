@@ -54,6 +54,8 @@ def getFormHtml(imageUrl, imageWidth):
     mean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "mean" else ""
     median_selected = " selected" if params['app']['retrieve']['rank_metric'] == "median" else ""
     logmean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "log-mean" else ""
+    sigmoidmean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "sigmoid-mean" else ""
+    sigmoid_selected = " selected" if params['app']['retrieve']['rank_metric'] == "sigmoid" else ""
     return f'''
           <form method="POST">
               <img src={imageUrl} alt="" style="width:{imageWidth}px;">
@@ -71,6 +73,8 @@ def getFormHtml(imageUrl, imageWidth):
                 <option value="mean"{mean_selected}>moyenne</option>
                 <option value="median"{median_selected}>médiane</option>
                 <option value="log-mean"{logmean_selected}>moyenne logarithmique</option>
+                <option value="sigmoid-mean"{sigmoidmean_selected}>moyenne sigmoïde</option>
+                <option value="sigmoid"{sigmoid_selected}>sigmoïde</option>
               </select>
               </br>
               <input type="submit" value="RECHERCHER">
