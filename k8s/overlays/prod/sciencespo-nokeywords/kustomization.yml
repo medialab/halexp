@@ -17,6 +17,6 @@ commonLabels:
 
 images:
   - name: scpomedialab/scpo-experts-search-nginx
-    newTag: '0.6.1'
+    newTag: '0.6.2'
   - name: scpomedialab/scpo-experts-search
-    newTag: '0.6.1'
+    newTag: '0.6.2'

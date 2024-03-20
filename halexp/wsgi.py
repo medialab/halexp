@@ -238,12 +238,11 @@ def queryAuthors():
 
     reponses = []
     for r in res:
-
         tmp = {
             'position': r['rank'] + 1,
             'name': r['author'].fullName,
             'id-hal': r['author'].authIdHal,
-            'lab_id': r['author'].authLab,
+            'labs_id': r['author'].authLabs,
             'aggregation score': r['rank_score'],
             'signature': r['author'].authSciencesPoSignature,
             'papers': [d.metadata for d in r['docs']]
