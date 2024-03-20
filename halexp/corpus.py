@@ -303,7 +303,7 @@ class Corpus:
         elif rank_metric == 'sigmoid-mean':
             return  1/(1+np.exp(-0.5 * len(scores))) * np.mean(scores)
         elif rank_metric == 'sigmoid':
-            return np.mean(1/(1+np.exp(-0.5 * len(scores))) * np.array(scores))
+            return np.mean(1/(1+np.exp(-0.5 * np.array(scores))) * np.array(scores))
         else:
             rms = ['mean', 'median', 'log-mean', 'sigmoid-mean', 'sigmoid']
             raise ValueError(
