@@ -5,7 +5,7 @@ app:
     top_k: number of entities to retrieve from search before ranking and filtering [int]
     score_threshold: minimum score threshold to retrieve an entity [float]
     min_year: minimum year to include an entity in response [int]
-    rank_metric: metric used to rank entities in response, must be one of mean, median or log-mean [string]
+    rank_metric: metric used to rank entities in response, must be one of mean, median, log-mean, sigmoid or sigmoid-mean [string]
 corpus:
   max_length: number of phrases to consider for each block when indexing large texts [int]
   use_keys:

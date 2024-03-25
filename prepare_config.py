@@ -85,7 +85,7 @@ env_vars = {
     "RANK_METRIC": {
         "hierarchy": "app/retrieve",
         "key": "rank_metric",
-        "valid_values": ["mean", "median", "log-mean"]
+        "valid_values": ["mean", "median", "log-mean", "sigmoid", "sigmoid-mean"]
     },
     "USE_ABSTRACT": {
         "hierarchy": "corpus/use_keys",
