@@ -32,6 +32,7 @@ corpus:
     - authIdHasPrimaryStructure_fs
     - authFullNameId_fs
     - keyword_s
+    - docType_s
 index:
   hnswlib_space: cosine
   ef_construction: 400

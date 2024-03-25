@@ -34,6 +34,7 @@ corpus:
     - labStructName_s
     - labStructId_i
     - keyword_s
+    - docType_s
 index:
   hnswlib_space: cosine
   ef_construction: 400
