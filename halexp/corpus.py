@@ -54,7 +54,14 @@ class Corpus:
         "Commentaire d’arrêt"
     ]
 
-    def __init__(self, index, dump_file, max_length, use_keys, **kwargs):
+    def __init__(
+            self,
+            index,
+            dump_file,
+            max_length,
+            use_keys,
+            min_num_characters,
+            **kwargs):
         """
         dump_file[str]: path to the HAL dump in json format.
 
@@ -74,6 +81,7 @@ class Corpus:
 
         self.doc_max_length = max_length
         self.include = use_keys
+        self.minNbCharacters = min_num_characters
 
         self.loadDump(dump_file)
         self.createDocuments()
@@ -197,6 +205,13 @@ class Corpus:
 
     def createDocument(self, hd, phrases):
 
+        phrases_ok = self.getValidLengthPhrases(phrases)
+        if len(phrases_ok) == 0:
+            jp = ','.join([f" `{p}`" for p in phrases])
+            print(f"Removing document with to short phrases:{jp}.")
+            return None
+        phrases = phrases_ok
+
         document = Document(phrases, self.doc_max_length)
         document.setMetadata(hd)
         document.setAuthors(self.parseStructure(
@@ -211,6 +226,13 @@ class Corpus:
         document.setSubtitle(hd["subtitle_s"])
 
         return document
+
+    def getValidLengthPhrases(self, phrases):
+
+        is_long_enough = [n > self.minNbCharacters for n in map(len, phrases)]
+        indexes_ok = [i for i, e in enumerate(is_long_enough) if e == True]
+        phrases_ok = [phrases[i] for i in indexes_ok]
+        return phrases_ok
 
     def hasValidAbstracts(self, hd):
         if "abstract_s" not in hd:
@@ -332,13 +354,9 @@ class Corpus:
             'author': a,
             'rank_score': self.rankScores(d['scores'], rank_metric),
             'docs_scores': d['scores'],
-            'docs_median_score': np.median(d['scores']),
-            'docs_mean_score': np.mean(d['scores']),
-            'docs_max_score': np.max(d['scores']),
-            'docs_min_score': np.min(d['scores']),
             'nb_hits': len(d['scores']),
-            'docs': d['docs']}
-                for a, d in authors_agg_scores.items()]
+            'docs': d['docs']
+        } for a, d in authors_agg_scores.items()]
 
         return self.sortAndRankResults(authors_agg_scores_r)
 
@@ -363,12 +381,10 @@ class Corpus:
             'rank_score': self.rankScores(values['scores'], rank_metric),
             'doc_scores': values['scores'],
             'doc_phrases': values['phrases'],
-            'doc_median_score': np.median(values['scores']),
-            'doc_mean_score': np.mean(values['scores']),
-            'doc_max_score': np.max(values['scores']),
-            'doc_min_score': np.min(values['scores']),
             'nb_hits': len(values['scores']),
-            'doc': doc}
+            'metadata': doc.metadata,
+            'doc': doc
+            }
                 for doc, values in docs_agg_scores.items()]
 
         return self.sortAndRankResults(docs_agg_scores_r)

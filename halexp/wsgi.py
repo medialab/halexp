@@ -180,9 +180,11 @@ def queryDocs():
         rank_metric=rank_metric
         )
 
-    res = res[:nb_show]
+    reponses = res[:nb_show]
+    for r in reponses:
+        del r['doc']
 
-    return jsonify(reponses=[r['doc'].metadata for r in res])
+    return jsonify(reponses=reponses)
 
 @app.route('/docs/form', methods=['GET', 'POST'])
 def formDocs():
@@ -249,7 +251,6 @@ def queryAuthors():
             'labs_id': r['author'].authLabs,
             'aggregation score': r['rank_score'],
             'signature': r['author'].authSciencesPoSignature,
-            'papers': [d.metadata for d in r['docs']]
         }
         tmp['phrases'] = [f'{score:.3f} {" ".join(doc.phrases)}'
             for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs']))]
