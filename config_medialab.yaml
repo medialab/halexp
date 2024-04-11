@@ -9,12 +9,13 @@ app:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
+  min_num_characters: 8
   max_length: 5
   use_keys:
     abstract: true
     title: true
-    subtitle: true
-    keywords: true
+    subtitle: false
+    keywords: false
   dump_file: hal-productions_medialab.json
   baseUrl: https://api.archives-ouvertes.fr
   portail: index
@@ -34,6 +35,7 @@ corpus:
     - labStructName_s
     - labStructId_i
     - keyword_s
+    - docType_s
 index:
   hnswlib_space: cosine
   ef_construction: 400
