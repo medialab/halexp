@@ -4,12 +4,13 @@ app:
     top_k: 1000
     score_threshold: 0.2
     min_year: 1900
-    rank_metric: log-mean
+    rank_metric: sigmoid-mean
   style:
     imageWidth: 450
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
   max_length: 1
+  min_num_characters: 8
   use_keys:
     abstract: true
     title: true

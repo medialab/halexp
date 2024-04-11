@@ -82,6 +82,11 @@ env_vars = {
         "key": "max_length",
         "convert": strToInt
     },
+    "MIN_CHARACTERS": {
+        "hierarchy": "corpus",
+        "key": "min_num_characters",
+        "convert": strToInt
+    },
     "RANK_METRIC": {
         "hierarchy": "app/retrieve",
         "key": "rank_metric",
