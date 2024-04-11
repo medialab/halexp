@@ -246,14 +246,16 @@ def queryAuthors():
     for r in res:
         tmp = {
             'position': r['rank'] + 1,
-            'name': r['author'].fullName,
-            'id-hal': r['author'].authIdHal,
-            'labs_id': r['author'].authLabs,
+            'author_name': r['author'].fullName,
+            'author_id-hal': r['author'].authIdHal,
+            'author_labs_id': r['author'].authLabs,
             'aggregation score': r['rank_score'],
-            'signature': r['author'].authSciencesPoSignature,
+            'author_signature': r['author'].authSciencesPoSignature,
         }
-        tmp['phrases'] = [f'{score:.3f} {" ".join(doc.phrases)}'
-            for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs']))]
+        tmp['results_phrases'] = [f'{score:.3f} {" ".join(doc.phrases)}'
+            for score, doc in zip(r['docs_scores'], r['docs'])]
+
+        tmp['results_metadata'] = [doc.metadata for doc in r['docs']]
 
         reponses.append(tmp)
 

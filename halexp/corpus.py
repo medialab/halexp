@@ -85,6 +85,7 @@ class Corpus:
 
         self.loadDump(dump_file)
         self.createDocuments()
+        
         self.index.createIndex(self.documents)
 
 
