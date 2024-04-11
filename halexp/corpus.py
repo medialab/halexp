@@ -85,7 +85,7 @@ class Corpus:
 
         self.loadDump(dump_file)
         self.createDocuments()
-        
+
         self.index.createIndex(self.documents)
 
 
@@ -209,7 +209,7 @@ class Corpus:
         phrases_ok = self.getValidLengthPhrases(phrases)
         if len(phrases_ok) == 0:
             jp = ','.join([f" `{p}`" for p in phrases])
-            print(f"Removing document with to short phrases:{jp}.")
+            print(f"Removing document with too short phrases:{jp}.")
             return None
         phrases = phrases_ok
 
@@ -229,11 +229,7 @@ class Corpus:
         return document
 
     def getValidLengthPhrases(self, phrases):
-
-        is_long_enough = [n > self.minNbCharacters for n in map(len, phrases)]
-        indexes_ok = [i for i, e in enumerate(is_long_enough) if e == True]
-        phrases_ok = [phrases[i] for i in indexes_ok]
-        return phrases_ok
+        return [p for f in phrases if len(p) > self.minNbCharacters]
 
     def hasValidAbstracts(self, hd):
         if "abstract_s" not in hd:
