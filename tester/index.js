@@ -97,9 +97,9 @@ const runQueries = () => {
         console.log("Result #" + i + ": ", data)
         data.reponses.forEach((elt, n) => {
           let uri, text;
-          if (elt.name) {
-            text = elt.name;
-            uri = "https://sciencespo.hal.science/search/index/?q=%2A&rows=30&sort=producedDate_tdate+desc&authIdPerson_i=" + elt["id-hal"];
+          if (elt.author_name) {
+            text = elt.author_name;
+            uri = "https://sciencespo.hal.science/search/index/?q=%2A&rows=30&sort=producedDate_tdate+desc&authIdPerson_i=" + elt["author_id-hal"];
           } else {
             text = elt.title_s;
             uri = elt.uri_s;
@@ -120,9 +120,9 @@ const showTooltip = (elid) => {
   const dat = details[elid];
   if (query_type === "authors")
     tooltip.innerHTML = "<p><b>Score:</b> " + dat["aggregation score"] + "</p>" +
-      "<p><b>Labo:</b> " + dat.lab_id + "</p>" +
-      "<p><b>Matches (" + dat.phrases.length + "):</b> <ul><li>" + [...new Set(dat.phrases)].join("</li><li>") + "</li></ul></p>" +
-      "<p><b>Papers (" + dat.papers.length + "):</b> <ul><li>" + [...new Set(dat.papers.map((p) => p.title_s[0]))].join("</li><li>") + "</li></ul></p>";
+      "<p><b>Labo:</b> " + dat.author_labs_id + "</p>" +
+      "<p><b>Matches (" + dat.results_phrases.length + "):</b> <ul><li>" + [...new Set(dat.results_phrases)].join("</li><li>") + "</li></ul></p>" +
+      "<p><b>Papers (" + dat.results_metadata.length + "):</b> <ul><li>" + [...new Set(dat.results_metadata.map((p) => p.title_s[0]))].join("</li><li>") + "</li></ul></p>";
   else tooltip.innerHTML = "<p>" + dat.citationFull_s + "</p>" +
     "<p><b>Subtitle:</b> " + dat.subtitle_s[0] + "</p>" +
     "<p><b>Abstract:</b> " + dat.abstract_s[0] + "</p>" +
