@@ -229,7 +229,7 @@ class Corpus:
         return document
 
     def getValidLengthPhrases(self, phrases):
-        return [p for f in phrases if len(p) > self.minNbCharacters]
+        return [p for p in phrases if len(p) > self.minNbCharacters]
 
     def hasValidAbstracts(self, hd):
         if "abstract_s" not in hd:
