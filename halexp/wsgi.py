@@ -54,6 +54,8 @@ def getFormHtml(imageUrl, imageWidth):
     mean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "mean" else ""
     median_selected = " selected" if params['app']['retrieve']['rank_metric'] == "median" else ""
     logmean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "log-mean" else ""
+    sigmoidmean_selected = " selected" if params['app']['retrieve']['rank_metric'] == "sigmoid-mean" else ""
+    sigmoid_selected = " selected" if params['app']['retrieve']['rank_metric'] == "sigmoid" else ""
     return f'''
           <form method="POST">
               <img src={imageUrl} alt="" style="width:{imageWidth}px;">
@@ -71,6 +73,8 @@ def getFormHtml(imageUrl, imageWidth):
                 <option value="mean"{mean_selected}>moyenne</option>
                 <option value="median"{median_selected}>médiane</option>
                 <option value="log-mean"{logmean_selected}>moyenne logarithmique</option>
+                <option value="sigmoid-mean"{sigmoidmean_selected}>moyenne sigmoïde</option>
+                <option value="sigmoid"{sigmoid_selected}>sigmoïde</option>
               </select>
               </br>
               <input type="submit" value="RECHERCHER">
@@ -176,9 +180,11 @@ def queryDocs():
         rank_metric=rank_metric
         )
 
-    res = res[:nb_show]
+    reponses = res[:nb_show]
+    for r in reponses:
+        del r['doc']
 
-    return jsonify(reponses=[r['doc'].metadata for r in res])
+    return jsonify(reponses=reponses)
 
 @app.route('/docs/form', methods=['GET', 'POST'])
 def formDocs():
@@ -240,15 +246,16 @@ def queryAuthors():
     for r in res:
         tmp = {
             'position': r['rank'] + 1,
-            'name': r['author'].fullName,
-            'id-hal': r['author'].authIdHal,
-            'labs_id': r['author'].authLabs,
+            'author_name': r['author'].fullName,
+            'author_id-hal': r['author'].authIdHal,
+            'author_labs_id': r['author'].authLabs,
             'aggregation score': r['rank_score'],
-            'signature': r['author'].authSciencesPoSignature,
-            'papers': [d.metadata for d in r['docs']]
+            'author_signature': r['author'].authSciencesPoSignature,
         }
-        tmp['phrases'] = [f'{score:.3f} {" ".join(doc.phrases)}'
-            for n, (score, doc) in enumerate(zip(r['docs_scores'], r['docs']))]
+        tmp['results_phrases'] = [f'{score:.3f} {" ".join(doc.phrases)}'
+            for score, doc in zip(r['docs_scores'], r['docs'])]
+
+        tmp['results_metadata'] = [doc.metadata for doc in r['docs']]
 
         reponses.append(tmp)
 

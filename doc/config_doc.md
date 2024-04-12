@@ -5,9 +5,10 @@ app:
     top_k: number of entities to retrieve from search before ranking and filtering [int]
     score_threshold: minimum score threshold to retrieve an entity [float]
     min_year: minimum year to include an entity in response [int]
-    rank_metric: metric used to rank entities in response, must be one of mean, median or log-mean [string]
+    rank_metric: metric used to rank entities in response, must be one of mean, median, log-mean, sigmoid or sigmoid-mean [string]
 corpus:
   max_length: number of phrases to consider for each block when indexing large texts [int]
+  min_num_characters: minimum length of phrases to index in characters [int]
   use_keys:
     abstract: whether to include or not the abstract of a HAL document in the text to be embedded [bool]
     title: whether to include or not the title of a HAL document in the text to be embedded [bool]
@@ -32,7 +33,7 @@ index:
 
 ## NOTES
 1. The parameters under retrieve are the default parameters for the app, they can be changed at each query.
-2. The parameters max_length and use_keys under corpus are used one time at the creation of the index; they will determine the principal characteristic of the entities embedding space and cannot be changed afterwards.
+2. The parameters max_length, min_num_characters and use_keys under corpus are used one time at the creation of the index; they will determine the principal characteristic of the entities embedding space and cannot be changed afterwards.
 3. All other parameters cannot be changed after the creation of the index.
 
 
