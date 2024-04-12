@@ -46,9 +46,14 @@ label {
 input {
   font-family: monospace;
 }
-.input span, .input input[type="checkbox"], .input input[type="radio"] {
+.input span, .input input[type="radio"] {
   font-family: monospace;
   margin: 12px 4px;
+  vertical-align: middle;
+}
+.input input[type="checkbox"] {
+  font-family: monospace;
+  margin: 8px 4px;
   vertical-align: middle;
 }
 #nb_results {
