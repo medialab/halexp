@@ -343,7 +343,7 @@ class Corpus:
         for score, doc in zip(scores, filter_docs):
             for author in doc.getAuthors():
 
-                if not author.isSPSignature() and self.filterNonSPAuthors:
+                if self.filterNonSPAuthors and not author.isSPSignature():
                     continue
 
                 if not author in authors_agg_scores:
