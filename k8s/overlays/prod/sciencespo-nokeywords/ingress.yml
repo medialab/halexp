@@ -12,7 +12,7 @@ spec:
   - host: experts-search.sciencespo.fr
     http:
       paths:
-        - path: /sciencespo-nokeywords(/|$)(.*)
+        - path: /sciencespo-softranking(/|$)(.*)
           backend:
             serviceName: nginx
             servicePort: 80
