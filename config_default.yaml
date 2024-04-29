@@ -10,6 +10,7 @@ app:
     logoUrl: https://medialab.sciencespo.fr/static/logo_medialab_d4a4a5af-92bb-4651-97e7-22272a5a5d3f.png
 corpus:
   max_length: 1
+  filter_non_sciencespo_authors: true
   min_num_characters: 20
   use_keys:
     abstract: true

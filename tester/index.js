@@ -144,6 +144,8 @@ document.getElementById('min_year').addEventListener('keyup', prepareTable);
 document.getElementById('thresholds').addEventListener('keyup', prepareTable);
 
 document.getElementById('metric_mean').addEventListener('change', prepareTable);
+document.getElementById('metric_sigmoid').addEventListener('change', prepareTable);
+document.getElementById('metric_sigmoid-mean').addEventListener('change', prepareTable);
 document.getElementById('metric_median').addEventListener('change', prepareTable);
 document.getElementById('metric_log-mean').addEventListener('change', prepareTable);
 

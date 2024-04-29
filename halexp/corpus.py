@@ -61,6 +61,7 @@ class Corpus:
             max_length,
             use_keys,
             min_num_characters,
+            filter_non_sciencespo_authors,
             **kwargs):
         """
         dump_file[str]: path to the HAL dump in json format.
@@ -82,6 +83,7 @@ class Corpus:
         self.doc_max_length = max_length
         self.include = use_keys
         self.minNbCharacters = min_num_characters
+        self.filterNonSPAuthors = filter_non_sciencespo_authors
 
         self.loadDump(dump_file)
         self.createDocuments()
@@ -340,12 +342,17 @@ class Corpus:
         authors_agg_scores = dict()
         for score, doc in zip(scores, filter_docs):
             for author in doc.getAuthors():
+
+                if self.filterNonSPAuthors and not author.isSPSignature():
+                    continue
+
                 if not author in authors_agg_scores:
                     authors_agg_scores[author] = {'scores': [], 'docs': []}
                 authors_agg_scores[author]['scores'].append(score)
                 authors_agg_scores[author]['docs'].append(doc)
 
         print(f"Corpus: found {len(authors_agg_scores)} different authors.")
+
 
         authors_agg_scores_r = [{
             'author': a,
