@@ -87,6 +87,11 @@ env_vars = {
         "key": "min_num_characters",
         "convert": strToInt
     },
+    "ONLY_SCPO_AUTHORS": {
+        "hierarchy": "corpus",
+        "key": "filter_non_sciencespo_authors",
+        "convert": strToBool
+    },
     "RANK_METRIC": {
         "hierarchy": "app/retrieve",
         "key": "rank_metric",
