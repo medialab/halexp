@@ -30,7 +30,7 @@ class Author:
         self.authIdHal = authIdHal
         self.fullName = fullName
         self.authLabs = labStructId_names
-        self.authLabIdHals = map(int, labStructId_is)
+        self.authLabIdHals = list(map(int, labStructId_is))
 
 
         self.authSciencesPoSignature = [
@@ -46,3 +46,7 @@ class Author:
 
     def __hash__(self):
         return hash(self.authFullNameId)
+
+    def isSPSignature(self):
+        tmp = any([s in self.sciencesPoLabsMap.keys() for s in self.authLabIdHals])
+        return tmp
