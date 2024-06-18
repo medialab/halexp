@@ -90,8 +90,18 @@ def formatDocsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
         <h3>Documents trouvés :</h3>
     '''
     for r in res[:nb_show]:
-        authors_names = r['doc'].getAuthorsFullNamesStr()
-        authors_urls = r['doc'].getAuthors()
+
+        # authors_names = r['doc'].getAuthorsFullNamesStr()
+        authors = r['doc'].getAuthors()
+        authors_links = []
+        for author in authors:
+            authorLink = getAuthorHalLink(author)
+            if authorLink:
+                authorNom = f"<a href='{authorLink}'>{author.fullName}</a>"
+            else:
+                authorNom = author.fullName
+            authors_links.append(authorNom)
+        authors_links = ', '.join(authors_links)
 
         phrases_list = """<ol>"""
         for phrase, score in zip(r['doc_phrases'], r['doc_scores']):
@@ -103,12 +113,27 @@ def formatDocsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
             <p><b>  titre :</b>  {r['doc'].title}<p>
             <p><b>  date publication :</b>  {r['doc'].publication_date}<p>
             <p><b>  link HAL :</b> <a href="{r['doc'].uri}">{r['doc'].uri}</a><p>
-            <p><b>  auteur·ice·s :</b>  {authors_names}<p>
+            <p><b>  auteur·ice·s :</b>  {authors_links}<p>
             <p><b>  aggregation score :</b>  {r['rank_score']:.3f}<p>
             <p><b>  phrases similaires :</b> <i>{phrases_list}</i><p>
             <br>
         '''
     return html
+
+
+def getAuthorHalLink(author):
+
+    baseUrl = 'https://sciencespo.hal.science/search/index/q/*'
+
+    if author.authIdHal and not author.authIdHal in ['0', 0]:
+        return f'{baseUrl}/authIdHal_i/{author.authIdHal}'
+
+    if author.fullName:
+        search_name = "+".join(author.fullName.split(' '))
+        return f'{baseUrl}/authFullName_s/{search_name}'
+
+    return None
+
 
 def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
     html = f'''
@@ -131,9 +156,15 @@ def formatAuthorsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
                 phrases_list += f'<li>{score:.3f} {" ".join(doc.phrases)} <a href="{doc.uri}">doc</a></li>'
         phrases_list += """</ol>"""
 
+        authorLink = getAuthorHalLink(r['author'])
+        if authorLink:
+            authorNom = f"<a href='{authorLink}'>{r['author'].fullName}</a>"
+        else:
+            authorNom = r['author'].fullName
+
         html += f'''
             <p><b>  auteur·ice # {r['rank'] + 1}</b><p>
-            <p><b>  nom :</b>  {r['author'].fullName}<p>
+            <p><b>  nom : </b>{authorNom}<p>
             <p><b>  id HAL :</b>  {r['author'].authIdHal}<p>
             <p><b>  laboratoires :</b>  {' AND '.join(r['author'].authLabs)}<p>
             <p><b>  signature : <a href="{signature[0]}">{signature[0]}</a></b><p>
