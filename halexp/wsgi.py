@@ -90,8 +90,18 @@ def formatDocsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
         <h3>Documents trouvés :</h3>
     '''
     for r in res[:nb_show]:
-        authors_names = r['doc'].getAuthorsFullNamesStr()
-        authors_urls = r['doc'].getAuthors()
+
+        # authors_names = r['doc'].getAuthorsFullNamesStr()
+        authors = r['doc'].getAuthors()
+        authors_links = []
+        for author in authors:
+            authorLink = getAuthorHalLink(author)
+            if authorLink:
+                authorNom = f"<a href='{authorLink}'>{author.fullName}</a>"
+            else:
+                authorNom = author.fullName
+            authors_links.append(authorNom)
+        authors_links = ', '.join(authors_links)
 
         phrases_list = """<ol>"""
         for phrase, score in zip(r['doc_phrases'], r['doc_scores']):
@@ -103,7 +113,7 @@ def formatDocsReponseHtml(query, res, nb_show, imageUrl, imageWidth):
             <p><b>  titre :</b>  {r['doc'].title}<p>
             <p><b>  date publication :</b>  {r['doc'].publication_date}<p>
             <p><b>  link HAL :</b> <a href="{r['doc'].uri}">{r['doc'].uri}</a><p>
-            <p><b>  auteur·ice·s :</b>  {authors_names}<p>
+            <p><b>  auteur·ice·s :</b>  {authors_links}<p>
             <p><b>  aggregation score :</b>  {r['rank_score']:.3f}<p>
             <p><b>  phrases similaires :</b> <i>{phrases_list}</i><p>
             <br>
