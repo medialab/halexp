@@ -62,6 +62,7 @@ RUN pip install --cache-dir=/tmp/pipcache --upgrade setuptools pip && \
     pip install --cache-dir=/tmp/pipcache 'transformers[torch-cpu]'==4.37.2 && \
     pip install --cache-dir=/tmp/pipcache --no-dependencies sentence-transformers==2.2.2 && \
     pip install --cache-dir=/tmp/pipcache nltk==3.8.1 && \
+    pip install --cache-dir=/tmp/pipcache Unidecode==1.3.8 && \
     pip cache purge && \
     rm -r /tmp/pipcache
 

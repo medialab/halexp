@@ -1,3 +1,4 @@
+from unidecode import unidecode
 
 
 class Author:
@@ -29,9 +30,9 @@ class Author:
         self.authFullNameId = authFullNameId
         self.authIdHal = authIdHal
         self.fullName = fullName
+        self.normalizedFullName = unidecode('-'.join(fullName.split(' ')))
         self.authLabs = labStructId_names
         self.authLabIdHals = list(map(int, labStructId_is))
-
 
         self.authSciencesPoSignature = [
             self.sciencesPoLabsMap[k] for k in self.authLabIdHals
@@ -42,10 +43,16 @@ class Author:
         return f"{self.fullName} | {self.authIdHal} | {' AND '.join(self.authLabs)}"
 
     def __eq__(self, other):
-        return self.authFullNameId == other.authFullNameId
+        if self.authIdHal in ['0', 0] and other.authFullNameId in ['0', 0]:
+            return self.normalizedFullName == other.normalizedFullName
+        else:
+            return self.authIdHal == other.authIdHal
 
     def __hash__(self):
-        return hash(self.authFullNameId)
+        if self.authIdHal in ['0', 0]:
+            return hash(self.normalizedFullName)
+        else:
+            return hash(self.authIdHal)
 
     def isSPSignature(self):
         tmp = any([s in self.sciencesPoLabsMap.keys() for s in self.authLabIdHals])
