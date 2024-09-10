@@ -27,7 +27,7 @@ spec:
           initialDelaySeconds: 10
           periodSeconds: 10
           timeoutSeconds: 5
-          failureThreshold: 2000
+          failureThreshold: 4000
         readinessProbe:
           httpGet:
             path: /docs/form
