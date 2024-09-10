@@ -96,7 +96,7 @@ COPY create_index.py create_index.py
 COPY prepare.sh prepare.sh
 
 ENTRYPOINT ["bash", "prepare.sh"]
-CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "45", "--worker-tmp-dir", "/dev/shm", "--workers", "2", "--worker-class", "gevent", "--worker-connections", "1024", "halexp.wsgi:app", "--log-level", "debug"]
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "--timeout", "0", "--worker-tmp-dir", "/dev/shm", "--workers", "2", "--worker-class", "gevent", "--worker-connections", "1024", "halexp.wsgi:app", "--log-level", "debug"]
 
 #ENV FLASK_APP /image/halexp/wsgi.py
 #CMD ["flask", "run", "--host=0.0.0.0", "--port=80", "--debugger"]
