@@ -1,9 +1,9 @@
 app:
-  show: 5
+  show: 15
   retrieve:
     top_k: 1000
-    score_threshold: 0.2
-    min_year: 1900
+    score_threshold: 0.3
+    min_year: 2010
     rank_metric: sigmoid-mean
   style:
     imageWidth: 450
