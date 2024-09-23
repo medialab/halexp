@@ -3,7 +3,7 @@ app:
   retrieve:
     top_k: 1000
     score_threshold: 0.2
-    min_year: 1900
+    min_year: 2010
     rank_metric: sigmoid-mean
   style:
     imageWidth: 450
