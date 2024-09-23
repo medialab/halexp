@@ -1,5 +1,5 @@
 app:
-  show: 5
+  show: 15
   retrieve:
     top_k: 1000
     score_threshold: 0.2
